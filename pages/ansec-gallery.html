@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery — ANSEC</title>
+  <meta name="description" content="Browse the ANSEC photo gallery — academic life, sports, faith, cultural arts, campus life and school events captured across eight decades."/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <style>
+  /* ═══════════════════════════════════════════════════════
+     DESIGN TOKENS
+  ═══════════════════════════════════════════════════════ */
+  :root{
+    --accent:#0071e3; --accent-soft:rgba(0,113,227,.08); --accent-mid:rgba(0,113,227,.18);
+    --grad-btn:linear-gradient(to right,#00b4ff,#6a00ff);
+    --presby-red:#8b0000; --presby-red-h:#a50000; --presby-red-glow:rgba(139,0,0,.25);
+    --gold-500:#d4af37; --gold-400:#ddc356; --gold-600:#b8941f;
+    --navy-900:#0a1929; --navy-800:#0f2744; --navy-700:#1a3a5c;
+    --bg-page:#f5f7fa; --bg-white:#fff; --bg-dark:#060f1e; --bg-darkblue:#071428;
+    --text-primary:#0d1b2a; --text-body:#3a4a5c; --text-muted:#7a8fa6;
+    --serif:'Playfair Display',Georgia,serif;
+    --lora:'Lora',Georgia,serif;
+    --sans:'DM Sans',system-ui,sans-serif;
+    --radius:12px; --radius-sm:8px; --radius-xs:6px;
+    --shadow-soft:0 2px 16px rgba(0,0,0,.06);
+    --shadow-card:0 2px 12px rgba(0,0,0,.05),0 6px 28px rgba(0,0,0,.05);
+    --shadow-lift:0 8px 32px rgba(0,0,0,.10);
+    --tr:.28s cubic-bezier(.22,1,.36,1); --tr-slow:.45s cubic-bezier(.22,1,.36,1);
+    --topbar-height:56px; --navbar-height:64px;
+    --header-total:calc(var(--topbar-height) + var(--navbar-height));
+    --container-pad:1.5rem;
+    --shadow-light:rgba(10,25,41,.07); --shadow-medium:rgba(10,25,41,.14); --shadow-heavy:rgba(10,25,41,.25);
+    --z-topbar:1000; --z-navbar:999; --z-dropdown:998; --z-overlay:997; --z-mobilemenu:1001; --z-lightbox:1100;
+    --neutral-50:#fafafa; --neutral-100:#f5f5f5; --neutral-200:#e5e5e5; --neutral-300:#d4d4d4; --neutral-500:#737373;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--bg-dark);color:#fff;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body.menu-open{overflow:hidden}
+  a{text-decoration:none;color:inherit}
+  ul{list-style:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  img{max-width:100%;display:block}
+
+  .wrap{max-width:1400px;padding-inline:var(--container-pad);margin-inline:auto}
+
+  /* ── Reveal ── */
+  .reveal,.reveal-l,.reveal-r{opacity:0;transition:opacity .72s cubic-bezier(.22,1,.36,1),transform .72s cubic-bezier(.22,1,.36,1)}
+  .reveal{transform:translateY(26px)}.reveal-l{transform:translateX(-26px)}.reveal-r{transform:translateX(26px)}
+  .reveal.in,.reveal-l.in,.reveal-r.in{opacity:1;transform:none}
+
+  
+  /* ═══════════════════════════════════════════════════════
+     §1 — HERO (cinematic, editorial)
+  ═══════════════════════════════════════════════════════ */
+  .gl-hero{
+    position:relative;
+    background:var(--bg-darkblue);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  /* SVG background */
+  .gl-hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .gl-hero-bg svg{position:absolute;inset:0;width:100%;height:100%}
+  /* Grain texture */
+  .gl-hero-grain{position:absolute;inset:0;z-index:1;opacity:.04;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat:repeat;background-size:160px 160px}
+  .gl-hero-ov{position:absolute;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(4,10,22,.7) 0%,rgba(4,10,22,.25) 40%,rgba(4,10,22,.85) 100%);pointer-events:none}
+
+  /* Hero grid wrap: text left, visual collage right */
+  .gl-hero-inner{
+    position:relative;z-index:3;
+    flex:1;display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:3rem;
+    align-items:center;
+    padding-block:5rem;
+  }
+  @media(max-width:860px){
+    .gl-hero-inner{grid-template-columns:1fr;gap:2rem;padding-block:3.5rem 2rem;text-align:center}
+  }
+
+  /* ── Left: text content ── */
+  .gl-hero-text{}
+  .gl-eyebrow{
+    display:inline-flex;align-items:center;gap:.6rem;
+    font-family:var(--sans);font-size:.63rem;font-weight:600;
+    letter-spacing:.26em;text-transform:uppercase;
+    color:rgba(0,180,255,.75);margin-bottom:1.2rem;
+    animation:hUp .9s cubic-bezier(.22,1,.36,1) both;
+  }
+  .gl-eyebrow::before{content:'';display:block;width:28px;height:1.5px;background:rgba(0,180,255,.45);border-radius:1px}
+  @media(max-width:860px){.gl-eyebrow{display:flex;justify-content:center}}
+
+  .gl-hero-heading{
+    font-family:var(--serif);font-size:clamp(2.6rem,5.5vw,5rem);font-weight:900;
+    color:#fff;line-height:1.04;letter-spacing:-.02em;
+    animation:hUp .9s .1s cubic-bezier(.22,1,.36,1) both;
+  }
+  .gl-hero-heading em{font-style:italic;color:#7dd3fc;display:block}
+
+  .gl-hero-sub{
+    font-family:var(--lora);font-style:italic;font-size:1.02rem;
+    color:rgba(200,220,240,.6);max-width:480px;margin-top:1.3rem;
+    line-height:1.8;animation:hUp .9s .22s cubic-bezier(.22,1,.36,1) both;
+  }
+  @media(max-width:860px){.gl-hero-sub{max-width:100%}}
+
+  /* Category pills row */
+  .gl-hero-pill-row{
+    display:flex;align-items:center;flex-wrap:wrap;gap:.55rem;
+    margin-top:2rem;
+    animation:hUp .9s .32s cubic-bezier(.22,1,.36,1) both;
+  }
+  @media(max-width:860px){.gl-hero-pill-row{justify-content:center}}
+  .gl-cat-pill{
+    display:inline-flex;align-items:center;gap:.45rem;
+    padding:.42rem 1rem;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+    font-family:var(--sans);font-size:.72rem;font-weight:500;
+    color:rgba(210,230,255,.75);letter-spacing:.02em;
+    cursor:pointer;transition:background var(--tr),border-color var(--tr),color var(--tr);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gl-cat-pill:hover,.gl-cat-pill:active{background:rgba(0,113,227,.22);border-color:rgba(0,113,227,.45);color:#fff}
+  .gl-cat-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .gl-cat-pill-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+  /* Stats strip */
+  .gl-hero-stats{
+    display:flex;align-items:center;gap:0;
+    margin-top:2.2rem;
+    border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);overflow:hidden;
+    animation:hUp .9s .42s cubic-bezier(.22,1,.36,1) both;
+  }
+  @media(max-width:860px){.gl-hero-stats{justify-content:center}}
+  .gl-stat{
+    flex:1;min-width:80px;
+    display:flex;flex-direction:column;align-items:center;
+    padding:.9rem .7rem;border-right:1px solid rgba(255,255,255,.07);
+    background:rgba(255,255,255,.03);
+  }
+  .gl-stat:last-child{border-right:none}
+  .gl-stat-num{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:#fff;line-height:1}
+  .gl-stat-num sup{font-size:.5em;color:#7dd3fc;vertical-align:super}
+  .gl-stat-lbl{font-family:var(--sans);font-size:.57rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(140,170,210,.5);margin-top:.25rem}
+
+  /* Hero CTA buttons */
+  .gl-hero-acts{
+    display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;
+    margin-top:2rem;
+    animation:hUp .9s .5s cubic-bezier(.22,1,.36,1) both;
+  }
+  @media(max-width:860px){.gl-hero-acts{justify-content:center}}
+  .btn-gl-primary{
+    display:inline-flex;align-items:center;gap:.45rem;
+    padding:.75rem 1.8rem;border-radius:999px;
+    background:var(--grad-btn);color:#fff;
+    font-family:var(--sans);font-size:.87rem;font-weight:600;
+    box-shadow:0 5px 22px rgba(106,0,255,.25);
+    transition:transform var(--tr),box-shadow var(--tr);position:relative;overflow:hidden;
+  }
+  .btn-gl-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14),transparent)}
+  .btn-gl-primary:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(106,0,255,.35)}
+  .btn-gl-ghost{
+    display:inline-flex;align-items:center;gap:.45rem;
+    padding:.75rem 1.8rem;border-radius:999px;
+    background:transparent;color:rgba(210,235,255,.7);
+    font-family:var(--sans);font-size:.87rem;font-weight:500;
+    border:1.5px solid rgba(0,113,227,.35);
+    transition:all var(--tr);
+  }
+  .btn-gl-ghost:hover{border-color:rgba(0,180,255,.6);color:#fff;background:rgba(0,113,227,.12)}
+
+  /* ── Right: mini photo collage ── */
+  .gl-hero-collage{
+    position:relative;display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:200px 140px;
+    gap:.55rem;
+    animation:hUp .9s .15s cubic-bezier(.22,1,.36,1) both;
+  }
+  @media(max-width:860px){.gl-hero-collage{display:none}}
+  .gl-collage-item{
+    border-radius:10px;overflow:hidden;position:relative;cursor:pointer;
+    background:rgba(15,39,68,.9);
+    transition:transform var(--tr),box-shadow var(--tr);
+  }
+  .gl-collage-item:hover{transform:scale(1.02);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+  .gl-collage-item:first-child{grid-row:1/3}
+  .gl-collage-item svg{width:100%;height:100%;display:block}
+  .gl-collage-badge{
+    position:absolute;bottom:.7rem;left:.7rem;
+    background:rgba(4,10,22,.88);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.1);border-radius:6px;
+    padding:.3rem .65rem;
+    font-family:var(--sans);font-size:.58rem;font-weight:600;
+    color:rgba(180,210,250,.75);letter-spacing:.04em;text-transform:uppercase;
+    pointer-events:none;
+  }
+
+  /* Hero scroll indicator */
+  .gl-scroll{
+    position:relative;z-index:3;
+    display:flex;flex-direction:column;align-items:center;gap:.4rem;
+    padding-bottom:2rem;opacity:.35;
+    animation:hUp .9s .55s cubic-bezier(.22,1,.36,1) both;
+  }
+  .gl-scroll span{font-family:var(--sans);font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:#fff}
+  .scroll-pip{width:4px;height:22px;border:1.5px solid rgba(255,255,255,.4);border-radius:99px;overflow:hidden;position:relative}
+  .scroll-pip::after{content:'';position:absolute;left:50%;top:0;width:2px;height:7px;background:#fff;transform:translateX(-50%);border-radius:99px;animation:pip 1.6s ease-in-out infinite}
+
+  @keyframes pip{0%{top:0;opacity:1}80%{top:13px;opacity:0}100%{top:0;opacity:0}}
+  @keyframes hUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+  .hero-accent-bar{height:3px;background:linear-gradient(to right,transparent,var(--accent) 30%,var(--accent) 70%,transparent)}
+
+  /* ═══════════════════════════════════════════════════════
+     §2 — FILTER BAR (sticky below header)
+  ═══════════════════════════════════════════════════════ */
+  .gl-filter-bar{
+    background:rgba(10,22,40,.97);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    position:sticky;top:var(--header-total);z-index:50;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    box-shadow:0 4px 24px rgba(0,0,0,.25);
+  }
+  .gl-filter-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:1rem;padding-block:.9rem;flex-wrap:wrap;
+  }
+  .gl-filter-pills{
+    display:flex;align-items:center;gap:.4rem;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;
+    scrollbar-width:none;flex:1;
+  }
+  .gl-filter-pills::-webkit-scrollbar{display:none}
+  .gl-filter-btn{
+    display:inline-flex;align-items:center;gap:.35rem;
+    padding:.42rem 1.05rem;border-radius:999px;flex-shrink:0;
+    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+    font-family:var(--sans);font-size:.75rem;font-weight:500;
+    color:rgba(200,220,240,.65);cursor:pointer;letter-spacing:.02em;
+    transition:all var(--tr);-webkit-tap-highlight-color:transparent;
+  }
+  .gl-filter-btn:hover{background:rgba(0,113,227,.2);border-color:rgba(0,113,227,.45);color:#fff}
+  .gl-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .gl-filter-btn i{font-size:.85rem}
+
+  .gl-filter-right{display:flex;align-items:center;gap:.9rem;flex-shrink:0}
+  .gl-count{font-family:var(--sans);font-size:.72rem;font-weight:500;color:rgba(140,170,210,.5);letter-spacing:.08em;white-space:nowrap}
+  .gl-count span{color:rgba(200,220,240,.75);font-weight:600}
+  .gl-layout-toggle{display:flex;align-items:center;gap:.35rem}
+  .gl-layout-btn{
+    width:32px;height:32px;border-radius:var(--radius-sm);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    color:rgba(200,220,240,.55);font-size:1.05rem;
+    transition:all var(--tr);-webkit-tap-highlight-color:transparent;
+  }
+  .gl-layout-btn.active{background:rgba(0,113,227,.25);border-color:rgba(0,113,227,.5);color:#7dd3fc}
+  .gl-layout-btn:hover{background:rgba(0,113,227,.18);color:#fff}
+
+  /* ═══════════════════════════════════════════════════════
+     §3 — GALLERY MAIN
+  ═══════════════════════════════════════════════════════ */
+  #gallery-main{background:var(--bg-dark)}
+  .gallery-wrap{padding-block:4rem 5rem}
+
+  .gl-section-header{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    margin-bottom:2.5rem;padding-bottom:1.2rem;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .gl-section-label{
+    display:flex;align-items:center;gap:.6rem;
+    font-family:var(--sans);font-size:.62rem;font-weight:600;
+    letter-spacing:.24em;text-transform:uppercase;color:rgba(0,180,255,.65);margin-bottom:.5rem;
+  }
+  .gl-section-label::before{content:'';width:28px;height:1.5px;background:rgba(0,180,255,.4);border-radius:1px}
+  .gl-section-title{font-family:var(--serif);font-size:clamp(1.5rem,2.5vw,2.2rem);font-weight:700;color:#fff;line-height:1.2}
+  .gl-section-title em{font-style:italic;color:#7dd3fc}
+  .gl-section-count{font-family:var(--sans);font-size:.75rem;color:rgba(140,170,210,.45)}
+
+  /* ── Category dividers ── */
+  .gl-cat-divider{display:flex;align-items:center;gap:1rem;margin-block:3.5rem 2rem}
+  .gl-cat-divider-line{flex:1;height:1px;background:rgba(255,255,255,.07)}
+  .gl-cat-divider-label{
+    display:flex;align-items:center;gap:.55rem;padding:.4rem 1.2rem;border-radius:999px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+    font-family:var(--sans);font-size:.68rem;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;color:rgba(200,220,240,.7);white-space:nowrap;
+  }
+
+  /* ── Featured triptych ── */
+  .gl-featured{
+    display:grid;
+    grid-template-columns:1.7fr 1fr 1fr;
+    grid-template-rows:340px 200px;
+    gap:.6rem;margin-bottom:.6rem;
+  }
+  .gl-featured .gl-item:first-child{grid-column:1;grid-row:1/3}
+  @media(max-width:1100px){.gl-featured{grid-template-columns:1.4fr 1fr;grid-template-rows:280px 180px}}
+  @media(max-width:860px){.gl-featured{grid-template-columns:1fr 1fr;grid-template-rows:200px 160px}}
+  @media(max-width:540px){.gl-featured{grid-template-columns:1fr;grid-template-rows:220px 160px 130px}.gl-featured .gl-item:first-child{grid-row:1}}
+
+  /* ── Gallery items ── */
+  .gl-item{
+    position:relative;overflow:hidden;border-radius:var(--radius-sm);
+    cursor:pointer;background:#0a1628;display:block;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gl-item-placeholder{width:100%;height:100%;display:block;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+  .gl-item:hover .gl-item-placeholder,.gl-item:active .gl-item-placeholder{transform:scale(1.05)}
+  .gl-item-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(4,10,22,.88) 0%,transparent 55%);
+    opacity:0;transition:opacity var(--tr);
+    display:flex;flex-direction:column;justify-content:flex-end;padding:1.4rem;
+  }
+  .gl-item:hover .gl-item-overlay,.gl-item:active .gl-item-overlay{opacity:1}
+  .gl-item.gl-featured-main .gl-item-overlay{opacity:1;background:linear-gradient(to top,rgba(4,10,22,.85) 0%,rgba(4,10,22,.2) 50%,transparent 100%)}
+  .gl-overlay-content{opacity:0;transform:translateY(8px);transition:opacity var(--tr),transform var(--tr)}
+  .gl-item:not(.gl-featured-main) .gl-overlay-content{opacity:0}
+  .gl-item:hover .gl-overlay-content,.gl-item.gl-featured-main .gl-overlay-content,.gl-item:active .gl-overlay-content{opacity:1;transform:none}
+  .gl-item-cat{
+    display:inline-flex;align-items:center;gap:.3rem;margin-bottom:.4rem;
+    font-family:var(--sans);font-size:.6rem;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+    padding:.18rem .6rem;border-radius:999px;border:1px solid;width:fit-content;
+  }
+  .cat-academic{color:rgba(100,180,255,.9);border-color:rgba(0,113,227,.5);background:rgba(0,113,227,.18)}
+  .cat-culture{color:rgba(210,160,255,.9);border-color:rgba(123,47,255,.5);background:rgba(123,47,255,.15)}
+  .cat-sports{color:rgba(80,220,140,.9);border-color:rgba(0,168,85,.5);background:rgba(0,168,85,.15)}
+  .cat-faith{color:rgba(255,200,80,.9);border-color:rgba(212,137,10,.5);background:rgba(212,137,10,.15)}
+  .cat-events{color:rgba(255,130,130,.9);border-color:rgba(220,53,69,.5);background:rgba(220,53,69,.15)}
+  .cat-campus{color:rgba(180,210,255,.9);border-color:rgba(100,150,220,.5);background:rgba(80,130,200,.15)}
+  .gl-item-title{font-family:var(--serif);font-size:1rem;font-weight:700;color:#fff;line-height:1.3;margin-bottom:.15rem}
+  .gl-item.gl-featured-main .gl-item-title{font-size:1.4rem}
+  .gl-item-year{font-family:var(--sans);font-size:.68rem;color:rgba(180,200,230,.5)}
+
+  /* Expand icon */
+  .gl-item-expand{
+    position:absolute;top:.9rem;right:.9rem;z-index:3;
+    width:34px;height:34px;border-radius:50%;
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+    opacity:0;transform:scale(.8);
+    transition:opacity var(--tr),transform var(--tr),background var(--tr);
+    color:rgba(255,255,255,.85);font-size:1rem;
+  }
+  .gl-item:hover .gl-item-expand,.gl-item:active .gl-item-expand{opacity:1;transform:scale(1)}
+
+  /* ── Masonry layout ── */
+  .gl-masonry{columns:4;column-gap:.6rem;margin-bottom:.6rem}
+  @media(max-width:1100px){.gl-masonry{columns:3}}
+  @media(max-width:720px){.gl-masonry{columns:2}}
+  @media(max-width:440px){.gl-masonry{columns:1}}
+  .gl-masonry.layout-grid{columns:unset!important;display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+  @media(max-width:1100px){.gl-masonry.layout-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:720px){.gl-masonry.layout-grid{grid-template-columns:repeat(2,1fr)}}
+
+  .gl-masonry-item{
+    break-inside:avoid;margin-bottom:.6rem;
+    border-radius:var(--radius-sm);overflow:hidden;
+    position:relative;cursor:pointer;background:#0a1628;display:block;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gl-masonry.layout-grid .gl-masonry-item{aspect-ratio:4/3;margin-bottom:0}
+  .gl-masonry-placeholder{
+    width:100%;display:block;
+    transition:transform .55s cubic-bezier(.22,1,.36,1);
+  }
+  .gl-masonry.layout-grid .gl-masonry-placeholder{height:100%;object-fit:cover}
+  .gl-masonry-item:hover .gl-masonry-placeholder,.gl-masonry-item:active .gl-masonry-placeholder{transform:scale(1.04)}
+  .gl-masonry-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top,rgba(4,10,22,.85) 0%,transparent 55%);
+    opacity:0;transition:opacity var(--tr);
+    display:flex;flex-direction:column;justify-content:flex-end;padding:1.1rem;
+  }
+  .gl-masonry-item:hover .gl-masonry-overlay,.gl-masonry-item:active .gl-masonry-overlay{opacity:1}
+  .gl-masonry-content{opacity:0;transform:translateY(6px);transition:opacity var(--tr),transform var(--tr)}
+  .gl-masonry-item:hover .gl-masonry-content,.gl-masonry-item:active .gl-masonry-content{opacity:1;transform:none}
+  .gl-masonry-item:hover .gl-item-expand,.gl-masonry-item:active .gl-item-expand{opacity:1;transform:scale(1)}
+
+  /* ── Panoramic strip ── */
+  .gl-panorama{
+    position:relative;height:240px;border-radius:var(--radius);overflow:hidden;
+    cursor:pointer;margin-block:.6rem;background:#0a1628;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .gl-panorama svg{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.22,1,.36,1)}
+  .gl-panorama:hover svg,.gl-panorama:active svg{transform:scale(1.03)}
+  .gl-panorama-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to right,rgba(4,10,22,.72) 0%,transparent 55%,rgba(4,10,22,.4) 100%);
+    display:flex;align-items:center;padding-inline:3rem;
+  }
+  @media(max-width:540px){.gl-panorama-overlay{padding-inline:1.5rem}}
+  .gl-panorama-label{font-family:var(--sans);font-size:.6rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,180,255,.65);margin-bottom:.4rem}
+  .gl-panorama-title{font-family:var(--serif);font-size:clamp(1.3rem,2.5vw,2rem);font-weight:700;color:#fff;line-height:1.2}
+  .gl-panorama-title em{font-style:italic;color:#7dd3fc}
+  .gl-panorama:hover .gl-item-expand,.gl-panorama:active .gl-item-expand{opacity:1;transform:scale(1)}
+
+  /* ── Load more ── */
+  .gl-load-more{text-align:center;margin-top:3.5rem;padding-bottom:1rem}
+  .gl-load-btn{
+    display:inline-flex;align-items:center;gap:.6rem;
+    padding:.9rem 2.5rem;border-radius:999px;cursor:pointer;
+    background:transparent;border:1.5px solid rgba(0,113,227,.4);
+    color:rgba(200,225,255,.7);font-family:var(--sans);font-size:.87rem;font-weight:500;
+    transition:all var(--tr);
+  }
+  .gl-load-btn:hover,.gl-load-btn:active{background:rgba(0,113,227,.18);border-color:rgba(0,180,255,.6);color:#fff}
+
+  /* ═══════════════════════════════════════════════════════
+     §4 — LIGHTBOX
+  ═══════════════════════════════════════════════════════ */
+  .lightbox{
+    position:fixed;inset:0;z-index:var(--z-lightbox);
+    background:rgba(3,8,20,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity .4s cubic-bezier(.22,1,.36,1);
+    padding:1rem;
+  }
+  .lightbox.open{opacity:1;pointer-events:all}
+  .lb-content{
+    position:relative;z-index:2;
+    width:100%;max-width:1100px;
+    display:grid;grid-template-columns:1fr 340px;
+    gap:2rem;align-items:center;
+    max-height:92vh;
+    transform:scale(.94);transition:transform .4s cubic-bezier(.22,1,.36,1);
+  }
+  .lightbox.open .lb-content{transform:scale(1)}
+  @media(max-width:900px){.lb-content{grid-template-columns:1fr;overflow-y:auto}}
+  @media(max-width:600px){.lb-content{gap:1.2rem}}
+
+  .lb-visual{
+    position:relative;border-radius:var(--radius);overflow:hidden;
+    background:#0a1628;aspect-ratio:4/3;
+    display:flex;align-items:center;justify-content:center;
+  }
+  @media(max-width:900px){.lb-visual{aspect-ratio:16/9}}
+  .lb-visual svg,.lb-visual img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* Arrows — inside the visual on mobile, outside on desktop */
+  .lb-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+    width:44px;height:44px;border-radius:50%;
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    backdrop-filter:blur(6px);transition:background var(--tr),border-color var(--tr);
+    color:rgba(255,255,255,.9);font-size:1.2rem;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .lb-arrow:hover,.lb-arrow:active{background:rgba(0,113,227,.35);border-color:rgba(0,180,255,.5)}
+  .lb-prev{left:.8rem}
+  .lb-next{right:.8rem}
+  @media(min-width:901px){
+    .lb-prev{left:-56px}
+    .lb-next{right:-56px}
+  }
+
+  .lb-progress{position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(to right,var(--accent),#00b4ff);transition:width .35s ease}
+
+  .lb-meta{display:flex;flex-direction:column;padding-block:1rem}
+  @media(max-width:900px){.lb-meta{padding-block:0}}
+  .lb-meta-cat{margin-bottom:1rem}
+  .lb-meta-title{font-family:var(--serif);font-size:1.7rem;font-weight:700;color:#fff;line-height:1.22;margin-bottom:.5rem}
+  @media(max-width:600px){.lb-meta-title{font-size:1.3rem}}
+  .lb-meta-desc{font-family:var(--lora);font-size:.92rem;color:rgba(190,215,245,.65);line-height:1.85;margin-bottom:1.4rem}
+  .lb-meta-detail{display:flex;flex-direction:column;gap:.55rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,.07)}
+  .lb-meta-row{display:flex;align-items:center;gap:.6rem;font-family:var(--sans);font-size:.8rem;color:rgba(155,185,225,.6)}
+  .lb-meta-row i{font-size:.95rem;color:rgba(0,180,255,.6);flex-shrink:0}
+
+  .lb-thumbs{display:flex;gap:.45rem;margin-top:1.6rem;flex-wrap:wrap}
+  .lb-thumb{
+    width:56px;height:42px;border-radius:var(--radius-sm);overflow:hidden;
+    cursor:pointer;border:2px solid transparent;transition:border-color var(--tr),opacity var(--tr);
+    opacity:.5;flex-shrink:0;background:#0a1628;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .lb-thumb:hover,.lb-thumb:active{opacity:.85}
+  .lb-thumb.active{border-color:var(--accent);opacity:1}
+  .lb-thumb svg,.lb-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+  .lb-close{
+    position:fixed;top:1.2rem;right:1.2rem;z-index:var(--z-lightbox);
+    width:42px;height:42px;border-radius:50%;cursor:pointer;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.2rem;color:rgba(255,255,255,.85);
+    transition:background var(--tr);-webkit-tap-highlight-color:transparent;
+  }
+  .lb-close:hover,.lb-close:active{background:rgba(220,53,69,.35);border-color:rgba(220,53,69,.5)}
+
+  /* ═══════════════════════════════════════════════════════
+     §5 — CTA
+  ═══════════════════════════════════════════════════════ */
+  .gl-cta{background:var(--bg-darkblue);position:relative;overflow:hidden}
+  .gl-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 50%,rgba(0,113,227,.12) 0%,transparent 60%);pointer-events:none}
+  .gl-cta::after{content:'';position:absolute;inset:0;opacity:.025;background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:54px 54px}
+  .cta-grid{display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center;position:relative;z-index:2;padding-block:4rem}
+  @media(max-width:860px){.cta-grid{grid-template-columns:1fr;gap:2rem;padding-block:3rem}}
+  .cta-lbl{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:.9rem;font-family:var(--sans);font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,180,255,.68)}
+  .cta-lbl::before{content:'';width:24px;height:1.5px;background:rgba(0,180,255,.45);border-radius:1px}
+  .cta-heading{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.6rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:.9rem}
+  .cta-heading em{font-style:italic;color:#7dd3fc}
+  .cta-body{font-family:var(--lora);font-size:.95rem;color:rgba(200,220,240,.62);line-height:1.85;max-width:520px}
+  .cta-actions{display:flex;flex-direction:column;gap:.8rem;align-items:flex-start;white-space:nowrap}
+  @media(max-width:860px){.cta-actions{flex-direction:row;flex-wrap:wrap;white-space:normal}}
+  </style>
+</head>
+<body>
+<div id="ansec-hearder"></div>
+
+<div class="mobile-overlay" id="navOverlay"></div>
+
+
+<!-- ══════════════════════════════════════════════
+  §1 — HERO
+══════════════════════════════════════════════ -->
+<section class="gl-hero" aria-labelledby="gl-hero-title">
+  <!-- SVG atmospheric background -->
+  <div class="gl-hero-bg" aria-hidden="true">
+    <svg viewBox="0 0 1440 760" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="glSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#020810"/>
+          <stop offset="100%" stop-color="#071428"/>
+        </linearGradient>
+        <radialGradient id="glG1" cx="15%" cy="60%" r="45%">
+          <stop offset="0%" stop-color="#003080" stop-opacity=".25"/>
+          <stop offset="100%" stop-color="#003080" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="glG2" cx="85%" cy="40%" r="40%">
+          <stop offset="0%" stop-color="#4a0080" stop-opacity=".18"/>
+          <stop offset="100%" stop-color="#4a0080" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="glG3" cx="50%" cy="80%" r="50%">
+          <stop offset="0%" stop-color="#001830" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#001830" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="glHorizon" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#0071e3" stop-opacity="0"/>
+          <stop offset="30%" stop-color="#0071e3" stop-opacity=".25"/>
+          <stop offset="70%" stop-color="#7c3aed" stop-opacity=".2"/>
+          <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <rect width="1440" height="760" fill="url(#glSky)"/>
+      <rect width="1440" height="760" fill="url(#glG1)"/>
+      <rect width="1440" height="760" fill="url(#glG2)"/>
+      <rect width="1440" height="760" fill="url(#glG3)"/>
+      <!-- Horizon glow line -->
+      <rect y="380" width="1440" height="1.5" fill="url(#glHorizon)"/>
+      <!-- Camera lens abstraction -->
+      <g transform="translate(1100,200)" opacity=".07" fill="none" stroke="#7dd3fc" stroke-width="1.5">
+        <circle cx="0" cy="0" r="80"/>
+        <circle cx="0" cy="0" r="55"/>
+        <circle cx="0" cy="0" r="30"/>
+        <circle cx="0" cy="0" r="8" fill="#7dd3fc" fill-opacity=".3" stroke="none"/>
+        <line x1="-80" x2="80" y1="0" y2="0"/>
+        <line x1="0" x2="0" y1="-80" y2="80"/>
+      </g>
+      <!-- Film strip -->
+      <g opacity=".05" fill="none" stroke="#d4af37" stroke-width="1">
+        <rect x="80" y="440" width="160" height="100" rx="4"/>
+        <rect x="88" y="448" width="30" height="18" rx="2" fill="rgba(212,175,55,.2)"/>
+        <rect x="124" y="448" width="30" height="18" rx="2" fill="rgba(212,175,55,.15)"/>
+        <rect x="160" y="448" width="30" height="18" rx="2" fill="rgba(212,175,55,.12)"/>
+        <rect x="88" y="472" width="30" height="18" rx="2"/>
+        <rect x="124" y="472" width="30" height="18" rx="2"/>
+        <rect x="160" y="472" width="30" height="18" rx="2"/>
+      </g>
+      <!-- Stars -->
+      <circle cx="180" cy="80" r="1.5" fill="#fff" opacity=".35"/>
+      <circle cx="420" cy="55" r="1.2" fill="#fff" opacity=".28"/>
+      <circle cx="650" cy="90" r="1.5" fill="#fff" opacity=".3"/>
+      <circle cx="900" cy="45" r="1" fill="#fff" opacity=".25"/>
+      <circle cx="1150" cy="70" r="1.5" fill="#fff" opacity=".32"/>
+      <circle cx="1380" cy="50" r="1.2" fill="#fff" opacity=".28"/>
+      <circle cx="320" cy="130" r="1" fill="#fff" opacity=".22"/>
+      <circle cx="780" cy="110" r="1.2" fill="#fff" opacity=".25"/>
+      <circle cx="1050" cy="130" r="1" fill="#fff" opacity=".2"/>
+    </svg>
+  </div>
+  <div class="gl-hero-grain" aria-hidden="true"></div>
+  <div class="gl-hero-ov" aria-hidden="true"></div>
+
+  <!-- Hero two-column layout -->
+  <div class="wrap" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+    <div class="gl-hero-inner">
+
+      <!-- TEXT SIDE -->
+      <div class="gl-hero-text">
+        <div class="gl-eyebrow">Anum Presbyterian Senior High School</div>
+        <h1 class="gl-hero-heading" id="gl-hero-title">
+          A School in
+          <em>Pictures</em>
+        </h1>
+        <p class="gl-hero-sub">Eight decades of student life, celebration, competition, faith, and community — captured in the moments that define what ANSEC truly is.</p>
+
+        <!-- Interactive category pills — functional filters -->
+        <div class="gl-hero-pill-row" role="group" aria-label="Browse by category">
+          <button class="gl-cat-pill active" data-filter-cat="all">
+            <span class="gl-cat-pill-dot" style="background:#fff"></span>All Photos
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="academic">
+            <span class="gl-cat-pill-dot" style="background:#4db8ff"></span>Academic
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="culture">
+            <span class="gl-cat-pill-dot" style="background:#c084fc"></span>Culture
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="sports">
+            <span class="gl-cat-pill-dot" style="background:#4ade80"></span>Sports
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="faith">
+            <span class="gl-cat-pill-dot" style="background:#fbbf24"></span>Faith
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="events">
+            <span class="gl-cat-pill-dot" style="background:#f87171"></span>Events
+          </button>
+          <button class="gl-cat-pill" data-filter-cat="campus">
+            <span class="gl-cat-pill-dot" style="background:#93c5fd"></span>Campus
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="gl-hero-stats">
+          <div class="gl-stat"><div class="gl-stat-num">500<sup>+</sup></div><div class="gl-stat-lbl">Photos</div></div>
+          <div class="gl-stat"><div class="gl-stat-num">6</div><div class="gl-stat-lbl">Categories</div></div>
+          <div class="gl-stat"><div class="gl-stat-num">87<sup>+</sup></div><div class="gl-stat-lbl">Years</div></div>
+          <div class="gl-stat"><div class="gl-stat-num">1</div><div class="gl-stat-lbl">Community</div></div>
+        </div>
+
+        <!-- CTA buttons -->
+        <div class="gl-hero-acts">
+          <a href="#gallery-main" class="btn-gl-primary">
+            <i class="ri-images-line" aria-hidden="true"></i>Browse Gallery
+          </a>
+          <a href="#gl-cta" class="btn-gl-ghost">
+            <i class="ri-upload-2-line" aria-hidden="true"></i>Submit a Photo
+          </a>
+        </div>
+      </div>
+
+      <!-- COLLAGE SIDE (desktop only) -->
+      <div class="gl-hero-collage" aria-hidden="true">
+        <!-- Tall feature -->
+        <div class="gl-collage-item" onclick="openLightbox(0)">
+          <svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs><radialGradient id="col1" cx="40%" cy="55%" r="55%"><stop offset="0%" stop-color="#003060" stop-opacity=".5"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="600" fill="#050e1e"/>
+            <rect width="300" height="600" fill="url(#col1)"/>
+            <!-- Stage crowd silhouette -->
+            <rect x="0" y="480" width="300" height="120" fill="#030810"/>
+            <ellipse cx="40"  cy="478" rx="16" ry="18" fill="#040c18"/>
+            <ellipse cx="80"  cy="485" rx="14" ry="16" fill="#050d1a"/>
+            <ellipse cx="120" cy="476" rx="16" ry="19" fill="#040c18"/>
+            <ellipse cx="160" cy="482" rx="15" ry="17" fill="#050e1c"/>
+            <ellipse cx="200" cy="475" rx="16" ry="20" fill="#040c18"/>
+            <ellipse cx="240" cy="482" rx="14" ry="17" fill="#050d1a"/>
+            <ellipse cx="280" cy="474" rx="16" ry="19" fill="#040c18"/>
+            <!-- Spotlight -->
+            <polygon points="150,100 60,480 240,480" fill="rgba(0,100,200,.05)"/>
+            <!-- Stars -->
+            <circle cx="60"  cy="50"  r="1.2" fill="rgba(0,180,255,.45)"/>
+            <circle cx="220" cy="70"  r="1.4" fill="rgba(0,180,255,.35)"/>
+            <circle cx="140" cy="30"  r="1"   fill="rgba(0,180,255,.3)"/>
+          </svg>
+          <div class="gl-collage-badge">Events · 2024</div>
+        </div>
+        <!-- Top right -->
+        <div class="gl-collage-item" onclick="openLightbox(9)">
+          <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs><radialGradient id="col2" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#1a0040" stop-opacity=".5"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="200" fill="#05020a"/>
+            <rect width="300" height="200" fill="url(#col2)"/>
+            <text x="30" y="120" font-size="40" fill="rgba(180,100,255,.15)" font-family="serif">♩</text>
+            <text x="120" y="90"  font-size="30" fill="rgba(180,100,255,.12)" font-family="serif">♪</text>
+            <text x="200" y="110" font-size="35" fill="rgba(180,100,255,.1)"  font-family="serif">♫</text>
+            <ellipse cx="80"  cy="145" rx="9" ry="11" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="120" cy="135" rx="9" ry="11" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="160" cy="130" rx="9" ry="11" fill="rgba(120,60,200,.35)"/>
+            <ellipse cx="200" cy="138" rx="9" ry="11" fill="rgba(120,60,200,.3)"/>
+          </svg>
+          <div class="gl-collage-badge">Choir · 2023</div>
+        </div>
+        <!-- Bottom right -->
+        <div class="gl-collage-item" onclick="openLightbox(8)">
+          <svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <rect width="300" height="140" fill="#010806"/>
+            <rect x="20" y="15" width="260" height="100" rx="3" fill="rgba(0,80,30,.3)" stroke="rgba(0,168,85,.18)" stroke-width="1.5"/>
+            <circle cx="150" cy="65" r="22" fill="none" stroke="rgba(0,168,85,.2)" stroke-width="1"/>
+            <line x1="150" y1="15" x2="150" y2="115" stroke="rgba(0,168,85,.16)" stroke-width="1"/>
+            <circle cx="70"  cy="65" r="5" fill="rgba(220,53,69,.6)"/>
+            <circle cx="120" cy="48" r="5" fill="rgba(220,53,69,.5)"/>
+            <circle cx="195" cy="72" r="5" fill="rgba(0,113,227,.6)"/>
+          </svg>
+          <div class="gl-collage-badge">Sports · 2024</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="gl-scroll" aria-hidden="true">
+    <div class="scroll-pip"></div>
+    <span>Browse</span>
+  </div>
+</section>
+<div class="hero-accent-bar"></div>
+
+
+<!-- ══════════════════════════════════════════════
+  FILTER BAR (sticky below header)
+══════════════════════════════════════════════ -->
+<div class="gl-filter-bar" id="filterBarEl" role="navigation" aria-label="Filter gallery by category">
+  <div class="wrap">
+    <div class="gl-filter-inner">
+      <div class="gl-filter-pills">
+        <button class="gl-filter-btn active" data-cat="all"><i class="ri-apps-2-line"></i>All</button>
+        <button class="gl-filter-btn" data-cat="academic"><i class="ri-graduation-cap-line"></i>Academic</button>
+        <button class="gl-filter-btn" data-cat="culture"><i class="ri-music-fill"></i>Culture &amp; Arts</button>
+        <button class="gl-filter-btn" data-cat="sports"><i class="ri-football-line"></i>Sports</button>
+        <button class="gl-filter-btn" data-cat="faith"><i class="ri-cross-line"></i>Faith</button>
+        <button class="gl-filter-btn" data-cat="events"><i class="ri-award-line"></i>Events</button>
+        <button class="gl-filter-btn" data-cat="campus"><i class="ri-building-2-line"></i>Campus Life</button>
+      </div>
+      <div class="gl-filter-right">
+        <div class="gl-count">Showing <span id="glCountNum">16</span></div>
+        <div class="gl-layout-toggle">
+          <button class="gl-layout-btn active" id="btnMasonry" aria-label="Masonry layout" title="Masonry">
+            <i class="ri-layout-masonry-line"></i>
+          </button>
+          <button class="gl-layout-btn" id="btnGrid" aria-label="Grid layout" title="Grid">
+            <i class="ri-grid-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+  §3 — MAIN GALLERY
+══════════════════════════════════════════════ -->
+<section id="gallery-main" aria-label="Photo gallery">
+  <div class="wrap">
+    <div class="gallery-wrap">
+
+      <!-- FEATURED TRIPTYCH -->
+      <div class="gl-section-header reveal">
+        <div>
+          <div class="gl-section-label">Editor's Choice</div>
+          <div class="gl-section-title">Featured <em>Moments</em></div>
+        </div>
+        <div class="gl-section-count">3 of 500+</div>
+      </div>
+
+      <div class="gl-featured reveal">
+        <!-- Main large -->
+        <div class="gl-item gl-featured-main" data-cat="events" onclick="openLightbox(0)" tabindex="0" role="button" aria-label="Open Speech Day photo">
+          <svg class="gl-item-placeholder" viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="f1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#071428"/><stop offset="100%" stop-color="#0e2040"/></linearGradient>
+              <radialGradient id="fr1" cx="40%" cy="55%" r="50%"><stop offset="0%" stop-color="#004080" stop-opacity=".35"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+            </defs>
+            <rect width="700" height="600" fill="url(#f1)"/>
+            <rect width="700" height="600" fill="url(#fr1)"/>
+            <rect x="0" y="480" width="700" height="120" fill="#04090f"/>
+            <ellipse cx="50"  cy="478" rx="18" ry="22" fill="#05101c"/>
+            <ellipse cx="100" cy="485" rx="16" ry="20" fill="#060e1a"/>
+            <ellipse cx="148" cy="476" rx="19" ry="23" fill="#050d1b"/>
+            <ellipse cx="200" cy="482" rx="17" ry="21" fill="#04091a"/>
+            <ellipse cx="252" cy="474" rx="20" ry="24" fill="#060e1c"/>
+            <ellipse cx="305" cy="483" rx="16" ry="20" fill="#05101b"/>
+            <ellipse cx="358" cy="475" rx="19" ry="23" fill="#060d1a"/>
+            <ellipse cx="412" cy="481" rx="18" ry="22" fill="#040a18"/>
+            <ellipse cx="465" cy="474" rx="20" ry="24" fill="#060f1d"/>
+            <ellipse cx="518" cy="482" rx="17" ry="21" fill="#050c1a"/>
+            <ellipse cx="570" cy="475" rx="19" ry="23" fill="#060e1c"/>
+            <ellipse cx="625" cy="481" rx="18" ry="22" fill="#04091b"/>
+            <ellipse cx="678" cy="474" rx="20" ry="24" fill="#060d1a"/>
+            <polygon points="350,100 150,480 550,480" fill="rgba(0,120,220,.06)"/>
+            <rect x="295" y="380" width="110" height="100" fill="#050c1a" stroke="rgba(0,113,227,.2)" stroke-width="1"/>
+            <rect x="270" y="370" width="160" height="18" rx="3" fill="#07121f" stroke="rgba(0,113,227,.18)" stroke-width="1"/>
+            <circle cx="100" cy="60" r="1.5" fill="rgba(0,180,255,.5)"/>
+            <circle cx="550" cy="50" r="1.5" fill="rgba(0,180,255,.45)"/>
+          </svg>
+          <div class="gl-item-overlay">
+            <div class="gl-overlay-content">
+              <div class="gl-item-cat cat-events">Events</div>
+              <div class="gl-item-title">Speech Day &amp; Prize-Giving Ceremony 2024</div>
+              <div class="gl-item-year">December 2024</div>
+            </div>
+          </div>
+          <div class="gl-item-expand"><i class="ri-fullscreen-line"></i></div>
+        </div>
+        <!-- Top right -->
+        <div class="gl-item" data-cat="sports" onclick="openLightbox(1)" tabindex="0" role="button" aria-label="Open athletics photo">
+          <svg class="gl-item-placeholder" viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs><radialGradient id="sr" cx="50%" cy="60%" r="55%"><stop offset="0%" stop-color="#003820" stop-opacity=".5"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="500" height="340" fill="#030d0a"/>
+            <rect width="500" height="340" fill="url(#sr)"/>
+            <ellipse cx="250" cy="200" rx="210" ry="130" fill="none" stroke="rgba(0,168,85,.18)" stroke-width="22"/>
+            <ellipse cx="250" cy="200" rx="145" ry="80" fill="rgba(0,80,40,.12)"/>
+            <ellipse cx="250" cy="200" rx="180" ry="107" fill="none" stroke="rgba(0,168,85,.1)" stroke-width="1" stroke-dasharray="8 4"/>
+            <line x1="250" y1="70" x2="250" y2="105" stroke="rgba(255,255,255,.2)" stroke-width="4"/>
+            <circle cx="60" cy="50" r="1.5" fill="rgba(0,200,100,.4)"/>
+            <circle cx="440" cy="40" r="1.3" fill="rgba(0,200,100,.3)"/>
+          </svg>
+          <div class="gl-item-overlay">
+            <div class="gl-overlay-content">
+              <div class="gl-item-cat cat-sports">Sports</div>
+              <div class="gl-item-title">Inter-House Athletics Day</div>
+              <div class="gl-item-year">February 2024</div>
+            </div>
+          </div>
+          <div class="gl-item-expand"><i class="ri-fullscreen-line"></i></div>
+        </div>
+        <!-- Bottom right -->
+        <div class="gl-item" data-cat="culture" onclick="openLightbox(2)" tabindex="0" role="button" aria-label="Open dance concert photo">
+          <svg class="gl-item-placeholder" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs><radialGradient id="cr" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#2d0050" stop-opacity=".4"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="500" height="200" fill="#0a0418"/>
+            <rect width="500" height="200" fill="url(#cr)"/>
+            <rect x="0"   y="0" width="60"  height="200" fill="rgba(80,20,120,.2)"/>
+            <rect x="440" y="0" width="60"  height="200" fill="rgba(80,20,120,.2)"/>
+            <circle cx="165" cy="100" r="80" fill="rgba(180,80,255,.06)"/>
+            <circle cx="335" cy="100" r="80" fill="rgba(180,80,255,.06)"/>
+            <ellipse cx="155" cy="145" rx="10" ry="12" fill="rgba(140,60,200,.3)"/>
+            <ellipse cx="335" cy="145" rx="10" ry="12" fill="rgba(140,60,200,.3)"/>
+          </svg>
+          <div class="gl-item-overlay">
+            <div class="gl-overlay-content">
+              <div class="gl-item-cat cat-culture">Culture &amp; Arts</div>
+              <div class="gl-item-title">Dream Team Dance Concert</div>
+              <div class="gl-item-year">November 2023</div>
+            </div>
+          </div>
+          <div class="gl-item-expand"><i class="ri-fullscreen-line"></i></div>
+        </div>
+      </div>
+
+
+      <!-- ACADEMIC LIFE -->
+      <div class="gl-cat-divider reveal">
+        <div class="gl-cat-divider-line"></div>
+        <div class="gl-cat-divider-label"><span style="width:7px;height:7px;border-radius:50%;background:#4db8ff;flex-shrink:0"></span>Academic Life</div>
+        <div class="gl-cat-divider-line"></div>
+      </div>
+
+      <div class="gl-masonry reveal" id="masonryAcademic">
+        <div class="gl-masonry-item" data-cat="academic" onclick="openLightbox(3)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="ac1" cx="40%" cy="35%" r="55%"><stop offset="0%" stop-color="#001840" stop-opacity=".6"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="380" fill="#040c1a"/>
+            <rect width="300" height="380" fill="url(#ac1)"/>
+            <rect x="60" y="60" width="180" height="120" rx="4" fill="rgba(0,60,30,.4)" stroke="rgba(0,180,80,.15)" stroke-width="1.5"/>
+            <line x1="80" y1="95" x2="220" y2="95" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+            <line x1="80" y1="115" x2="180" y2="115" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+            <line x1="80" y1="135" x2="200" y2="135" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <ellipse cx="70" cy="215" rx="14" ry="16" fill="rgba(0,100,200,.15)"/>
+            <ellipse cx="150" cy="210" rx="14" ry="16" fill="rgba(0,100,200,.15)"/>
+            <ellipse cx="230" cy="213" rx="14" ry="16" fill="rgba(0,100,200,.15)"/>
+            <rect x="20" y="220" width="260" height="8" rx="2" fill="rgba(0,113,227,.12)"/>
+            <rect x="20" y="248" width="260" height="8" rx="2" fill="rgba(0,113,227,.10)"/>
+            <circle cx="30" cy="50" r="1.5" fill="rgba(0,180,255,.4)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-academic">Academic</div>
+              <div class="gl-item-title">Classroom Session — Form 2</div>
+              <div class="gl-item-year">2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="academic" onclick="openLightbox(4)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="240" fill="#030c14"/>
+            <rect x="0" y="80"  width="300" height="8" rx="1" fill="rgba(150,100,50,.25)"/>
+            <rect x="0" y="120" width="300" height="8" rx="1" fill="rgba(150,100,50,.22)"/>
+            <rect x="0" y="160" width="300" height="8" rx="1" fill="rgba(150,100,50,.20)"/>
+            <rect x="10" y="60" width="12" height="20" rx="1" fill="rgba(0,100,180,.4)"/>
+            <rect x="24" y="62" width="10" height="18" rx="1" fill="rgba(180,0,0,.35)"/>
+            <rect x="36" y="58" width="14" height="22" rx="1" fill="rgba(0,140,60,.35)"/>
+            <rect x="52" y="63" width="11" height="17" rx="1" fill="rgba(180,100,0,.35)"/>
+            <rect x="65" y="60" width="13" height="20" rx="1" fill="rgba(100,0,180,.3)"/>
+            <ellipse cx="200" cy="175" rx="20" ry="22" fill="rgba(0,100,180,.15)"/>
+            <circle cx="100" cy="40" r="1.3" fill="rgba(0,180,255,.35)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-academic">Academic</div>
+              <div class="gl-item-title">Students in the School Library</div>
+              <div class="gl-item-year">2023</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="academic" onclick="openLightbox(5)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="ac3" cx="50%" cy="30%" r="50%"><stop offset="0%" stop-color="#001028" stop-opacity=".7"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="320" fill="#040a14"/>
+            <rect width="300" height="320" fill="url(#ac3)"/>
+            <rect x="110" y="100" width="80" height="90" rx="6" fill="rgba(0,100,200,.1)" stroke="rgba(0,180,80,.25)" stroke-width="1.5"/>
+            <rect x="120" y="110" width="25" height="20" rx="2" fill="rgba(0,200,100,.1)" stroke="rgba(0,200,100,.2)" stroke-width="1"/>
+            <rect x="155" y="110" width="25" height="20" rx="2" fill="rgba(0,200,100,.1)" stroke="rgba(0,200,100,.2)" stroke-width="1"/>
+            <circle cx="150" cy="155" r="12" fill="rgba(0,180,80,.08)" stroke="rgba(0,180,80,.25)" stroke-width="1.2"/>
+            <circle cx="60" cy="50" r="1.5" fill="rgba(0,200,100,.4)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-academic">Academic</div>
+              <div class="gl-item-title">STEM Club Robotics Session</div>
+              <div class="gl-item-year">2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="academic" onclick="openLightbox(6)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="260" fill="#030a10"/>
+            <rect x="30" y="80"  width="240" height="5" rx="1" fill="rgba(0,113,227,.12)"/>
+            <rect x="30" y="110" width="240" height="5" rx="1" fill="rgba(0,113,227,.10)"/>
+            <rect x="30" y="140" width="240" height="5" rx="1" fill="rgba(0,113,227,.09)"/>
+            <rect x="30" y="170" width="240" height="5" rx="1" fill="rgba(0,113,227,.07)"/>
+            <rect x="40"  y="70" width="22" height="14" rx="2" fill="rgba(0,80,160,.2)"/>
+            <rect x="80"  y="70" width="22" height="14" rx="2" fill="rgba(0,80,160,.2)"/>
+            <rect x="120" y="70" width="22" height="14" rx="2" fill="rgba(0,80,160,.2)"/>
+            <rect x="160" y="70" width="22" height="14" rx="2" fill="rgba(0,80,160,.2)"/>
+            <rect x="200" y="70" width="22" height="14" rx="2" fill="rgba(0,80,160,.2)"/>
+            <circle cx="40" cy="40" r="1.4" fill="rgba(0,180,255,.35)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-academic">Academic</div>
+              <div class="gl-item-title">WASSCE Examinations Hall</div>
+              <div class="gl-item-year">May 2024</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campus panoramic -->
+      <div class="gl-panorama reveal" data-cat="campus" onclick="openLightbox(7)" tabindex="0" role="button" aria-label="Campus aerial view">
+        <svg viewBox="0 0 1400 240" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="pan1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#040c18"/><stop offset="50%" stop-color="#071428"/><stop offset="100%" stop-color="#040c18"/></linearGradient>
+            <radialGradient id="panr" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#003070" stop-opacity=".3"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          </defs>
+          <rect width="1400" height="240" fill="url(#pan1)"/>
+          <rect width="1400" height="240" fill="url(#panr)"/>
+          <rect x="50"  y="100" width="120" height="140" fill="#04091a"/>
+          <rect x="80"  y="70"  width="60"  height="30"  fill="#04091a"/>
+          <rect x="200" y="120" width="80"  height="120" fill="#050b1c"/>
+          <rect x="310" y="90"  width="140" height="150" fill="#04091a"/>
+          <rect x="490" y="110" width="100" height="130" fill="#060d1e"/>
+          <rect x="620" y="80"  width="160" height="160" fill="#04091a"/>
+          <rect x="820" y="100" width="120" height="140" fill="#060d1e"/>
+          <rect x="980" y="90"  width="140" height="150" fill="#050b1c"/>
+          <rect x="1150" y="110" width="100" height="130" fill="#040a1c"/>
+          <rect x="1290" y="95"  width="110" height="145" fill="#060d1e"/>
+          <rect x="0" y="238" width="1400" height="2" fill="rgba(0,113,227,.15)"/>
+          <circle cx="200" cy="30" r="1.5" fill="rgba(0,180,255,.4)"/>
+          <circle cx="800" cy="35" r="1.4" fill="rgba(0,180,255,.35)"/>
+          <circle cx="1350" cy="40" r="1.3" fill="rgba(0,180,255,.25)"/>
+        </svg>
+        <div class="gl-panorama-overlay">
+          <div>
+            <div class="gl-panorama-label">Campus Life</div>
+            <div class="gl-panorama-title">The ANSEC Campus — <em>Aerial Perspective</em></div>
+          </div>
+        </div>
+        <div class="gl-item-expand" style="top:1rem;right:1rem;"><i class="ri-fullscreen-line"></i></div>
+      </div>
+
+
+      <!-- SPORTS & CULTURE -->
+      <div class="gl-cat-divider reveal">
+        <div class="gl-cat-divider-line"></div>
+        <div class="gl-cat-divider-label"><span style="width:7px;height:7px;border-radius:50%;background:#4ade80;flex-shrink:0"></span>Sports &amp; Culture</div>
+        <div class="gl-cat-divider-line"></div>
+      </div>
+
+      <div class="gl-masonry reveal" id="masonrySports">
+        <div class="gl-masonry-item" data-cat="sports" onclick="openLightbox(8)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 210" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="210" fill="#020a04"/>
+            <rect x="20" y="30" width="260" height="150" rx="3" fill="rgba(0,80,30,.3)" stroke="rgba(0,168,85,.2)" stroke-width="1.5"/>
+            <circle cx="150" cy="105" r="28" fill="none" stroke="rgba(0,168,85,.2)" stroke-width="1.2"/>
+            <line x1="150" y1="30" x2="150" y2="180" stroke="rgba(0,168,85,.18)" stroke-width="1"/>
+            <rect x="20" y="65" width="35" height="80" fill="none" stroke="rgba(0,168,85,.22)" stroke-width="1.2"/>
+            <rect x="245" y="65" width="35" height="80" fill="none" stroke="rgba(0,168,85,.22)" stroke-width="1.2"/>
+            <circle cx="80"  cy="105" r="5" fill="rgba(220,53,69,.6)"/>
+            <circle cx="130" cy="80"  r="5" fill="rgba(220,53,69,.5)"/>
+            <circle cx="200" cy="110" r="5" fill="rgba(0,113,227,.6)"/>
+            <circle cx="170" cy="140" r="5" fill="rgba(0,113,227,.5)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-sports">Sports</div>
+              <div class="gl-item-title">Inter-House Football Final</div>
+              <div class="gl-item-year">January 2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="culture" onclick="openLightbox(9)" tabindex="0" role="button">
+           <img src="../assets/images/aniversary-125.jpg" alt="ANSEC chapel interior" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>
+            <defs><radialGradient id="ch1" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#1a0040" stop-opacity=".6"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="350" fill="#06020f"/>
+            <rect width="300" height="350" fill="url(#ch1)"/>
+            <ellipse cx="70"  cy="200" rx="10" ry="12" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="105" cy="185" rx="10" ry="12" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="140" cy="178" rx="10" ry="12" fill="rgba(120,60,200,.35)"/>
+            <ellipse cx="175" cy="180" rx="10" ry="12" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="210" cy="190" rx="10" ry="12" fill="rgba(120,60,200,.3)"/>
+            <ellipse cx="245" cy="204" rx="10" ry="12" fill="rgba(120,60,200,.3)"/>
+            <text x="60" y="130" font-size="18" fill="rgba(180,120,255,.2)" font-family="serif">♩</text>
+            <text x="130" y="110" font-size="14" fill="rgba(180,120,255,.18)" font-family="serif">♪</text>
+            <text x="200" y="120" font-size="16" fill="rgba(180,120,255,.15)" font-family="serif">♫</text>
+            <circle cx="50" cy="50" r="1.5" fill="rgba(180,100,255,.4)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-culture">Culture</div>
+              <div class="gl-item-title">ANSEC School Choir Rehearsal</div>
+              <div class="gl-item-year">2023</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="sports" onclick="openLightbox(10)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 230" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="230" fill="#020608"/>
+            <rect x="30" y="40" width="240" height="150" rx="3" fill="rgba(212,137,10,.06)" stroke="rgba(212,137,10,.2)" stroke-width="1.5"/>
+            <line x1="150" y1="40" x2="150" y2="190" stroke="rgba(212,137,10,.4)" stroke-width="2.5"/>
+            <circle cx="148" cy="75" r="12" fill="rgba(212,137,10,.3)" stroke="rgba(212,137,10,.5)" stroke-width="1.5"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-sports">Sports</div>
+              <div class="gl-item-title">Volleyball Championship Match</div>
+              <div class="gl-item-year">2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="culture" onclick="openLightbox(11)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 290" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="cult2" cx="50%" cy="45%" r="52%"><stop offset="0%" stop-color="#200030" stop-opacity=".5"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+              <pattern id="kente" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="none"/><rect x="0" y="0" width="10" height="10" fill="rgba(212,137,10,.15)"/><rect x="10" y="10" width="10" height="10" fill="rgba(220,53,69,.12)"/></pattern>
+            </defs>
+            <rect width="300" height="290" fill="#08020f"/>
+            <rect width="300" height="290" fill="url(#cult2)"/>
+            <rect x="80" y="100" width="140" height="180" rx="6" fill="url(#kente)" opacity=".6"/>
+            <ellipse cx="150" cy="88" rx="22" ry="25" fill="rgba(180,100,255,.2)"/>
+            <path d="M130 80 Q150 50 170 80" fill="rgba(212,137,10,.2)" stroke="rgba(212,137,10,.3)" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="1.5" fill="rgba(212,137,10,.5)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-culture">Culture</div>
+              <div class="gl-item-title">Cultural Arts Festival — Traditional Dance</div>
+              <div class="gl-item-year">November 2023</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- FAITH & EVENTS -->
+      <div class="gl-cat-divider reveal">
+        <div class="gl-cat-divider-line"></div>
+        <div class="gl-cat-divider-label"><span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;flex-shrink:0"></span>Faith &amp; Events</div>
+        <div class="gl-cat-divider-line"></div>
+      </div>
+
+      <div class="gl-masonry reveal" id="masonryFaith">
+        <div class="gl-masonry-item" data-cat="faith" onclick="openLightbox(12)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="ch2" cx="50%" cy="45%" r="52%"><stop offset="0%" stop-color="#1a1000" stop-opacity=".6"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="260" fill="#080604"/>
+            <rect width="300" height="260" fill="url(#ch2)"/>
+            <path d="M80 260 L80 120 Q150 60 220 120 L220 260" fill="rgba(212,137,10,.07)" stroke="rgba(212,137,10,.18)" stroke-width="1.5"/>
+            <line x1="150" y1="80"  x2="150" y2="200" stroke="rgba(255,200,80,.3)" stroke-width="3"/>
+            <line x1="120" y1="120" x2="180" y2="120" stroke="rgba(255,200,80,.3)" stroke-width="3"/>
+            <ellipse cx="100" cy="210" rx="5" ry="8" fill="rgba(255,180,40,.35)"/>
+            <ellipse cx="200" cy="210" rx="5" ry="8" fill="rgba(255,180,40,.35)"/>
+            <circle cx="50" cy="40" r="1.5" fill="rgba(255,200,80,.4)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-faith">Faith</div>
+              <div class="gl-item-title">Candlelight Carol Service</div>
+              <div class="gl-item-year">December 2023</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="events" onclick="openLightbox(13)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="200" fill="#080210"/>
+            <rect x="50" y="80" width="200" height="120" fill="rgba(0,113,227,.06)" stroke="rgba(0,113,227,.15)" stroke-width="1.2"/>
+            <rect x="60"  y="20" width="20" height="70" fill="rgba(220,53,69,.3)"/>
+            <rect x="100" y="25" width="20" height="65" fill="rgba(0,113,227,.3)"/>
+            <rect x="180" y="20" width="20" height="70" fill="rgba(0,168,85,.3)"/>
+            <rect x="220" y="25" width="20" height="65" fill="rgba(212,137,10,.3)"/>
+            <ellipse cx="120" cy="78" rx="10" ry="12" fill="rgba(0,113,227,.2)"/>
+            <ellipse cx="150" cy="74" rx="10" ry="12" fill="rgba(0,113,227,.25)"/>
+            <ellipse cx="180" cy="78" rx="10" ry="12" fill="rgba(0,113,227,.2)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-events">Events</div>
+              <div class="gl-item-title">Prefect Investiture Ceremony</div>
+              <div class="gl-item-year">September 2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="faith" onclick="openLightbox(14)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="su1" cx="50%" cy="35%" r="50%"><stop offset="0%" stop-color="#1a1200" stop-opacity=".7"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs>
+            <rect width="300" height="320" fill="#060500"/>
+            <rect width="300" height="320" fill="url(#su1)"/>
+            <rect x="0" y="260" width="300" height="60" fill="#040300"/>
+            <ellipse cx="30"  cy="258" rx="12" ry="14" fill="#060500"/>
+            <ellipse cx="65"  cy="252" rx="13" ry="15" fill="#050400"/>
+            <ellipse cx="100" cy="257" rx="12" ry="14" fill="#060500"/>
+            <ellipse cx="135" cy="250" rx="13" ry="15" fill="#050400"/>
+            <ellipse cx="170" cy="255" rx="12" ry="14" fill="#060500"/>
+            <ellipse cx="205" cy="249" rx="13" ry="15" fill="#050400"/>
+            <ellipse cx="240" cy="254" rx="12" ry="14" fill="#060500"/>
+            <ellipse cx="275" cy="250" rx="13" ry="15" fill="#050400"/>
+            <polygon points="150,80 60,260 240,260" fill="rgba(255,200,60,.04)"/>
+            <rect x="120" y="180" width="60" height="80" fill="rgba(212,137,10,.08)" stroke="rgba(212,137,10,.2)" stroke-width="1"/>
+            <circle cx="80" cy="50" r="1.5" fill="rgba(255,200,80,.45)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-faith">Faith</div>
+              <div class="gl-item-title">SU Week of Prayer — Evening Rally</div>
+              <div class="gl-item-year">April 2024</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gl-masonry-item" data-cat="campus" onclick="openLightbox(15)" tabindex="0" role="button">
+          <svg class="gl-masonry-placeholder" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="220" fill="#030a08"/>
+            <ellipse cx="60"  cy="100" rx="35" ry="45" fill="rgba(0,80,30,.3)"/>
+            <ellipse cx="30"  cy="120" rx="25" ry="35" fill="rgba(0,80,30,.25)"/>
+            <line x1="60" y1="145" x2="60" y2="220" stroke="rgba(80,50,20,.3)" stroke-width="4"/>
+            <ellipse cx="240" cy="105" rx="35" ry="45" fill="rgba(0,80,30,.3)"/>
+            <ellipse cx="270" cy="125" rx="28" ry="36" fill="rgba(0,80,30,.25)"/>
+            <line x1="240" y1="150" x2="240" y2="220" stroke="rgba(80,50,20,.3)" stroke-width="4"/>
+            <rect x="100" y="40" width="100" height="100" fill="rgba(0,40,80,.3)" stroke="rgba(0,113,227,.1)" stroke-width="1"/>
+            <rect x="130" y="0"  width="40"  height="220" fill="rgba(0,60,30,.15)"/>
+            <circle cx="50"  cy="30" r="1.4" fill="rgba(0,200,80,.4)"/>
+            <circle cx="260" cy="25" r="1.2" fill="rgba(0,200,80,.3)"/>
+          </svg>
+          <div class="gl-masonry-overlay">
+            <div class="gl-item-expand" style="top:.7rem;right:.7rem;position:absolute;"><i class="ri-fullscreen-line"></i></div>
+            <div class="gl-masonry-content">
+              <div class="gl-item-cat cat-campus">Campus Life</div>
+              <div class="gl-item-title">Morning Walk — The Central Path</div>
+              <div class="gl-item-year">2024</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Load more -->
+      <div class="gl-load-more reveal">
+        <button class="gl-load-btn" id="loadMoreBtn">
+          <i class="ri-download-line"></i>Load More Photos
+        </button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<!-- ══════════════════════════════════════════════
+  §5 — CTA
+══════════════════════════════════════════════ -->
+<section class="gl-cta" id="gl-cta" aria-labelledby="cta-heading">
+  <div class="wrap">
+    <div class="cta-grid reveal">
+      <div>
+        <div class="cta-lbl">Share a Memory</div>
+        <h2 class="cta-heading" id="cta-heading">Have a Photo of<br><em>ANSEC Life?</em></h2>
+        <p class="cta-body">Are you an alumnus, current student, or parent with photographs of ANSEC events, campus life, or school history? We are continuously building this archive and welcome contributions that help tell the full story of this institution.</p>
+        <p class="cta-body" style="margin-top:.9rem">Contact the school's media team or reach out through the alumni office to have your photographs considered for inclusion in this gallery.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="#" class="btn-gl-primary">
+          <i class="ri-upload-2-line"></i>Submit a Photo
+        </a>
+        <a href="../pages/ansec-contact.html" class="btn-gl-ghost">
+          <i class="ri-mail-line"></i>Contact Media Team
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ═══════════════════ -
+  LIGHTBOX
+══════════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb-close" id="lbClose" aria-label="Close photo viewer">
+    <i class="ri-close-line"></i>
+  </button>
+  <div class="lb-content">
+    <div class="lb-visual">
+      <div id="lbImgContainer" style="width:100%;height:100%"></div>
+      <div class="lb-progress" id="lbProgress"></div>
+      <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Previous photo">
+        <i class="ri-arrow-left-s-line"></i>
+      </button>
+      <button class="lb-arrow lb-next" id="lbNext" aria-label="Next photo">
+        <i class="ri-arrow-right-s-line"></i>
+      </button>
+    </div>
+    <div class="lb-meta">
+      <div class="lb-meta-cat" id="lbCat"></div>
+      <div class="lb-meta-title" id="lbTitle"></div>
+      <div class="lb-meta-desc" id="lbDesc"></div>
+      <div class="lb-meta-detail">
+        <div class="lb-meta-row"><i class="ri-calendar-line"></i><span id="lbYear"></span></div>
+        <div class="lb-meta-row"><i class="ri-map-pin-line"></i><span id="lbLoc"></span></div>
+      </div>
+      <div class="lb-thumbs" id="lbThumbs"></div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+'use strict';
+
+/* ── Helpers ── */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const isMobile = () => window.innerWidth <= 992;
+
+/* ── Non-touch class ── */
+if(!('ontouchstart' in window) && navigator.maxTouchPoints === 0){
+  document.body.classList.add('no-touch');
+}
+
+/* ══════════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════════ */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); revObs.unobserve(e.target); }});
+},{ threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+$$('.reveal,.reveal-l,.reveal-r').forEach(el => revObs.observe(el));
+
+/* ══════════════════════════════════════════════
+   PHOTO DATA
+══════════════════════════════════════════════ */
+const photos = [
+  { cat:'events',  label:'Events',        title:'Speech Day & Prize-Giving Ceremony 2024',     desc:'The annual celebration of academic achievement — bringing together students, staff, parents, and distinguished guests to honour excellence across every year group.',   year:'December 2024',    loc:'School Auditorium, ANSEC' },
+  { cat:'sports',  label:'Sports',        title:'Inter-House Athletics Day',                    desc:'The most anticipated sporting event of the ANSEC calendar. Houses compete across track and field disciplines in front of the entire school community.',                   year:'February 2024',    loc:'ANSEC Athletics Ground' },
+  { cat:'culture', label:'Culture & Arts',title:'Dream Team Dance Concert',                     desc:'The Dream Team Dance Group delivers a dazzling performance of choreography and expression, combining contemporary movement with Ghanaian cultural motifs.',               year:'November 2023',    loc:'School Auditorium, ANSEC' },
+  { cat:'academic',label:'Academic',      title:'Classroom Session — Form 2',                   desc:'Students engaged in an active classroom lesson, one of the thousands of teaching moments that define academic life at ANSEC each day.',                                   year:'2024',             loc:'Block B Classrooms, ANSEC' },
+  { cat:'academic',label:'Academic',      title:'Students in the School Library',                desc:'ANSEC\'s library is a hub of quiet concentration and curious exploration — a space where students pursue knowledge beyond the curriculum.',                              year:'2023',             loc:'ANSEC Library' },
+  { cat:'academic',label:'Academic',      title:'STEM Club Robotics Session',                    desc:'Members of the STEM Club work on electronics and robotics under the guidance of their teacher-advisor, preparing for the annual STEM Innovation Exhibition.',            year:'2024',             loc:'ICT & Science Wing, ANSEC' },
+  { cat:'academic',label:'Academic',      title:'WASSCE Examinations Hall',                      desc:'Final-year students sit the West African Senior School Certificate Examination — the culmination of three years of study.',                                               year:'May 2024',         loc:'ANSEC Examination Hall' },
+  { cat:'campus',  label:'Campus Life',   title:'The ANSEC Campus — Aerial View',               desc:'A panoramic view of the ANSEC campus, showing academic blocks, boarding houses, the athletics ground, and the surrounding Anum landscape.',                               year:'2023',             loc:'Anum, Eastern Region, Ghana' },
+  { cat:'sports',  label:'Sports',        title:'Inter-House Football Final',                    desc:'The house football final brings the highest intensity of the year\'s sporting competition — every tackle, pass, and goal witnessed by a roaring school crowd.',           year:'January 2024',     loc:'ANSEC Football Pitch' },
+  { cat:'culture', label:'Culture & Arts',title:'ANSEC School Choir Rehearsal',                  desc:'The school choir prepares for the annual Carol Service — voices trained through months of rehearsal to deliver one of the most beautiful evenings in the ANSEC calendar.', year:'2023',             loc:'School Auditorium, ANSEC' },
+  { cat:'sports',  label:'Sports',        title:'Volleyball Championship Match',                  desc:'The inter-house volleyball championship produces some of the finest athletic moments of the year — fast, skillful, and fiercely contested.',                               year:'2024',             loc:'ANSEC Volleyball Courts' },
+  { cat:'culture', label:'Culture & Arts',title:'Cultural Arts Festival — Traditional Dance',    desc:'Students celebrate Ghanaian cultural heritage through traditional costume, music, and dance — one of the most vibrant expressions of identity in the ANSEC year.',       year:'November 2023',    loc:'School Grounds, ANSEC' },
+  { cat:'faith',   label:'Faith',         title:'Candlelight Carol Service',                     desc:'The ANSEC choir leads a solemn candlelit service to close the first term — filling the chapel with warmth, light, and voices raised in worship.',                       year:'December 2023',    loc:'ANSEC Chapel' },
+  { cat:'events',  label:'Events',        title:'Prefect Investiture Ceremony',                  desc:'Newly elected student leaders are formally inaugurated, pledging to serve the school with integrity, discipline, and dedication in the year ahead.',                     year:'September 2024',   loc:'Assembly Ground, ANSEC' },
+  { cat:'faith',   label:'Faith',         title:'SU Week of Prayer — Evening Rally',             desc:'The Scripture Union\'s Week of Revival draws the entire school community into a week of prayer, testimony, and spiritual reflection.',                                   year:'April 2024',       loc:'School Grounds, ANSEC' },
+  { cat:'campus',  label:'Campus Life',   title:'Morning Walk — The Central Path',               desc:'The tree-lined central path of ANSEC campus, captured in the quiet of the morning before classes begin — a image of calm purposefulness.',                               year:'2024',             loc:'ANSEC Campus, Anum' },
+];
+
+const catClass = { academic:'cat-academic', culture:'cat-culture', sports:'cat-sports', faith:'cat-faith', events:'cat-events', campus:'cat-campus' };
+
+const svgFills = [
+  '#050e1e','#030d0a','#06020f','#040c1a','#030c14',
+  '#040a14','#030a10','#040c18','#020a04','#06020f',
+  '#020608','#08020f','#080604','#080210','#060500','#030a08'
+];
+
+/* ══════════════════════════════════════════════
+   LIGHTBOX
+══════════════════════════════════════════════ */
+let currentIdx = 0;
+
+function openLightbox(idx){
+  currentIdx = idx;
+  renderLightbox();
+  $('#lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  $('#lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function navigateLb(dir){
+  currentIdx = (currentIdx + dir + photos.length) % photos.length;
+  renderLightbox();
+}
+function renderLightbox(){
+  const p = photos[currentIdx];
+  /* Visual */
+  $('#lbImgContainer').innerHTML = `
+    <svg width="100%" height="100%" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+      <rect width="800" height="600" fill="${svgFills[currentIdx]||'#071428'}"/>
+      <rect width="800" height="600" fill="rgba(0,30,80,0.3)"/>
+      <circle cx="400" cy="300" r="200" fill="none" stroke="rgba(0,113,227,0.08)" stroke-width="60"/>
+      <circle cx="400" cy="300" r="120" fill="rgba(0,113,227,0.04)"/>
+      <text x="400" y="340" text-anchor="middle" font-family="Georgia,serif" font-size="60" font-style="italic" fill="rgba(255,255,255,0.07)">${currentIdx+1}</text>
+      <circle cx="80"  cy="60"  r="1.8" fill="rgba(0,180,255,0.4)"/>
+      <circle cx="720" cy="80"  r="1.5" fill="rgba(0,180,255,0.35)"/>
+      <circle cx="400" cy="40"  r="1.4" fill="rgba(0,180,255,0.3)"/>
+    </svg>`;
+  /* Meta */
+  $('#lbCat').innerHTML   = `<span class="gl-item-cat ${catClass[p.cat]}">${p.label}</span>`;
+  $('#lbTitle').textContent = p.title;
+  $('#lbDesc').textContent  = p.desc;
+  $('#lbYear').textContent  = p.year;
+  $('#lbLoc').textContent   = p.loc;
+  /* Progress */
+  $('#lbProgress').style.width = ((currentIdx+1)/photos.length*100)+'%';
+  /* Thumbnails */
+  $('#lbThumbs').innerHTML = photos.slice(0,8).map((ph,i)=>`
+    <div class="lb-thumb ${i===currentIdx?'active':''}" role="button" tabindex="0" onclick="openLightbox(${i})" aria-label="${ph.title}">
+      <svg viewBox="0 0 56 42" xmlns="http://www.w3.org/2000/svg">
+        <rect width="56" height="42" fill="${svgFills[i]||'#071428'}"/>
+        <text x="28" y="26" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.3)" font-family="serif">${i+1}</text>
+      </svg>
+    </div>`).join('');
+}
+
+/* Wire up lightbox controls */
+$('#lbClose').addEventListener('click', closeLightbox);
+$('#lbPrev').addEventListener('click',  () => navigateLb(-1));
+$('#lbNext').addEventListener('click',  () => navigateLb(1));
+$('#lightbox').addEventListener('click', e => { if(e.target === $('#lightbox')) closeLightbox(); });
+
+/* keyboard / swipe */
+document.addEventListener('keydown', e => {
+  if(!$('#lightbox').classList.contains('open')) return;
+  if(e.key === 'Escape')     closeLightbox();
+  if(e.key === 'ArrowRight') navigateLb(1);
+  if(e.key === 'ArrowLeft')  navigateLb(-1);
+});
+
+/* Touch swipe on lightbox */
+let lbTouchX = null;
+$('#lightbox').addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+$('#lightbox').addEventListener('touchend',   e => {
+  if(lbTouchX === null) return;
+  const diff = lbTouchX - e.changedTouches[0].clientX;
+  if(Math.abs(diff) > 50){ navigateLb(diff > 0 ? 1 : -1); }
+  lbTouchX = null;
+});
+
+/* Keyboard trigger on gallery items */
+$$('[role="button"]').forEach(el => {
+  el.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
+  });
+});
+
+/* ══════════════════════════════════════════════
+   FILTER (shared between hero pills and filter bar)
+══════════════════════════════════════════════ */
+function applyFilter(cat){
+  const items = $$('[data-cat]');
+  let visible = 0;
+  items.forEach(el => {
+    const show = cat === 'all' || el.dataset.cat === cat;
+    el.style.display = show ? '' : 'none';
+    if(show && el.closest('#gallery-main')) visible++;
+  });
+  /* Update count */
+  const countEl = $('#glCountNum');
+  if(countEl) countEl.textContent = cat === 'all' ? items.filter(el => el.closest('#gallery-main')).length : visible;
+
+  /* Sync all filter controls */
+  $$('.gl-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  $$('.gl-cat-pill').forEach(b => b.classList.toggle('active', b.dataset.filterCat === cat));
+  $$('.gl-hero-cat-pill').forEach(b => { if(b.dataset.cat) b.classList.toggle('active', b.dataset.cat === cat); });
+}
+
+/* Filter bar buttons */
+$$('.gl-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyFilter(btn.dataset.cat));
+});
+
+/* Hero pill buttons */
+$$('.gl-cat-pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyFilter(btn.dataset.filterCat);
+    /* Scroll to gallery */
+    setTimeout(() => {
+      const gm = $('#gallery-main');
+      if(gm) gm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  });
+});
+
+/* ══════════════════════════════════════════════
+   LAYOUT TOGGLE (masonry ↔ grid)
+══════════════════════════════════════════════ */
+const btnMasonry = $('#btnMasonry');
+const btnGrid    = $('#btnGrid');
+
+btnMasonry && btnMasonry.addEventListener('click', () => {
+  $$('.gl-masonry').forEach(m => m.classList.remove('layout-grid'));
+  btnMasonry.classList.add('active');
+  btnGrid.classList.remove('active');
+});
+btnGrid && btnGrid.addEventListener('click', () => {
+  $$('.gl-masonry').forEach(m => m.classList.add('layout-grid'));
+  btnGrid.classList.add('active');
+  btnMasonry.classList.remove('active');
+});
+
+/* ══════════════════════════════════════════════
+   LOAD MORE
+══════════════════════════════════════════════ */
+$('#loadMoreBtn') && $('#loadMoreBtn').addEventListener('click', function(){
+  this.innerHTML = '<i class="ri-check-line"></i>All photos loaded';
+  this.disabled = true;
+  this.style.opacity = '0.5';
+  this.style.cursor = 'default';
+});
+
+/* ── Footer year ── */
+const fyEl = $('#footerYear');
+if(fyEl) fyEl.textContent = new Date().getFullYear();
+</script>
+
+
+  <div id="ansec-footer"></div>
+<script src="/assets/js/ansec-layout.js" defer></script>
+</body>
+</html>

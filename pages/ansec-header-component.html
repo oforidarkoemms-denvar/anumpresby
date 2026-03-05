@@ -1,0 +1,1022 @@
+<!--
+╔═══════════════════════════════════════════════════════════════╗
+║  ANSEC SITE HEADER  ·  Built from scratch                     ║
+║  Namespace: snh  (Site Nav Header)                            ║
+║                                                               ║
+║  CONFLICT AUDIT — these names were intentionally avoided:     ║
+║  IDs:     navbar, topbar, navToggle, navMenu, navClose,       ║
+║           navOverlay, navList                                  ║
+║  Classes: .navbar .topbar .topbar-inner .navbar-inner         ║
+║           .navbar-menu .navbar-nav .navbar-toggle             ║
+║           .nav-item .nav-link .dropdown-menu .dropdown-item   ║
+║           .mobile-overlay .mobile-close-btn                   ║
+║  Body:    menu-open                                           ║
+║  CSS vars:--topbar-height --navbar-height --header-total      ║
+║           --z-topbar --z-navbar --z-dropdown --z-overlay      ║
+║           --z-mobilemenu --tr --tr-slow                       ║
+║  JS vars: navbar toggle menu closeBtn overlay isMobile        ║
+║           menuOpen scrolled                                   ║
+║  JS fns:  openMenu closeMenu closeAllDropdowns                ║
+║           handleScroll                                        ║
+║  window:  __ahInit __ansecHeaderInit                          ║
+╚═══════════════════════════════════════════════════════════════╝
+-->
+
+<!-- ── external deps (safe to duplicate — browsers dedupe) ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet"/>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ALL RULES LIVE UNDER  .snh  OR  #snh-*
+   Nothing bleeds into the page.
+   Custom properties prefixed  --snh-  avoid every clash.
+═══════════════════════════════════════════════════════════ */
+
+/* ── tokens ─────────────────────────────────────────────── */
+:root {
+  --snh-gold:        #d4af37;
+  --snh-gold-lit:    #e2c44e;
+  --snh-red:         #8b0000;
+  --snh-red-lit:     #a80000;
+  --snh-navy:        #071222;
+  --snh-navy2:       #0e2340;
+  --snh-blue:        #0071e3;
+  --snh-blue-lit:    #0085ff;
+  --snh-blue-dim:    rgba(0,113,227,.07);
+  --snh-white:       #ffffff;
+  --snh-page:        #f4f6f9;
+  --snh-body-txt:    #2e3d4f;
+  --snh-muted:       #7a8fa6;
+  --snh-line:        rgba(0,0,0,.07);
+  --snh-gold-line:   rgba(212,175,55,.2);
+  --snh-sans:        'DM Sans', system-ui, sans-serif;
+  --snh-serif:       'Playfair Display', Georgia, serif;
+  --snh-tb-h:        46px;
+  --snh-nb-h:        64px;
+  --snh-total:       calc(var(--snh-tb-h) + var(--snh-nb-h));
+  --snh-z:           1400;   /* above every page z-index */
+  --snh-ease:        cubic-bezier(.22, 1, .36, 1);
+  --snh-dur:         .22s;
+  --snh-dur-lg:      .36s;
+  --snh-r:           10px;
+}
+
+/* ── box-model reset (scoped) ── */
+.snh-topbar, .snh-topbar *,
+.snh-navbar,  .snh-navbar *,
+#snh-overlay, #snh-overlay *,
+#snh-drawer,  #snh-drawer * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── body helpers (unique names, no conflict) ── */
+body.snh-offset { padding-top: var(--snh-total) !important; }
+body.snh-locked { overflow: hidden !important; }
+
+
+/* ════════════════════════════════════════════════════════
+   TOPBAR
+════════════════════════════════════════════════════════ */
+.snh-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--snh-tb-h);
+  background: var(--snh-navy);
+  border-bottom: 1px solid var(--snh-gold-line);
+  z-index: var(--snh-z);
+  will-change: transform;
+}
+
+.snh-tb-inner {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* — brand — */
+.snh-brand {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  text-decoration: none;
+  flex-shrink: 0;
+  outline-offset: 3px;
+}
+.snh-brand-mark {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--snh-navy2);
+  border: 2px solid var(--snh-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--snh-serif);
+  font-size: .88rem; font-weight: 700; color: var(--snh-gold);
+  flex-shrink: 0;
+  transition: border-color var(--snh-dur) var(--snh-ease),
+              transform    var(--snh-dur) var(--snh-ease);
+}
+.snh-brand:hover .snh-brand-mark {
+  border-color: var(--snh-gold-lit);
+  transform: rotate(-6deg) scale(1.08);
+}
+.snh-brand-label {
+  display: flex;
+  flex-direction: column;
+  gap: .06rem;
+}
+.snh-brand-label strong {
+  font-family: var(--snh-sans);
+  font-size: .78rem; font-weight: 700;
+  color: #fff; letter-spacing: .01em; line-height: 1.2;
+}
+.snh-brand-label small {
+  font-family: var(--snh-sans);
+  font-size: .58rem; font-weight: 400;
+  color: rgba(180,210,240,.55);
+  letter-spacing: .07em; line-height: 1;
+}
+@media (max-width: 400px) { .snh-brand-label small { display: none; } }
+
+/* — topbar right pills — */
+.snh-tb-right {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+}
+.snh-tb-link {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-family: var(--snh-sans); font-size: .67rem; font-weight: 600;
+  color: rgba(180,210,240,.6); text-decoration: none;
+  padding: .3rem .6rem; border-radius: 6px;
+  border: none; background: none; cursor: pointer;
+  letter-spacing: .03em; white-space: nowrap;
+  transition: color var(--snh-dur) var(--snh-ease),
+              background var(--snh-dur) var(--snh-ease);
+}
+.snh-tb-link i { font-size: .8rem; }
+.snh-tb-link:hover { color: #fff; background: rgba(255,255,255,.07); }
+
+.snh-tb-div {
+  width: 1px; height: 14px;
+  background: rgba(255,255,255,.1);
+  flex-shrink: 0; margin-inline: .1rem;
+}
+
+.snh-tb-cta {
+  display: inline-flex; align-items: center; gap: .3rem;
+  font-family: var(--snh-sans); font-size: .67rem; font-weight: 700;
+  color: #1a0e00; background: var(--snh-gold);
+  text-decoration: none; padding: .3rem .9rem;
+  border-radius: 999px; white-space: nowrap;
+  transition: background var(--snh-dur) var(--snh-ease),
+              transform  var(--snh-dur) var(--snh-ease);
+  letter-spacing: .03em;
+}
+.snh-tb-cta i { font-size: .8rem; }
+.snh-tb-cta:hover { background: var(--snh-gold-lit); transform: translateY(-1px); }
+
+/* hide labels, keep icons on very small screens */
+@media (max-width: 580px) {
+  .snh-tb-link span  { display: none; }
+  .snh-tb-link       { padding: .3rem .42rem; }
+  .snh-tb-link i     { font-size: .88rem; }
+  .snh-tb-div:first-of-type { display: none; }
+}
+
+
+/* ════════════════════════════════════════════════════════
+   NAVBAR
+════════════════════════════════════════════════════════ */
+.snh-navbar {
+  position: fixed;
+  top: var(--snh-tb-h); left: 0; right: 0;
+  height: var(--snh-nb-h);
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--snh-line);
+  z-index: calc(var(--snh-z) - 1);
+  transition: box-shadow .3s ease, background .3s ease;
+}
+.snh-navbar.snh-is-scrolled {
+  background: var(--snh-white);
+  box-shadow: 0 4px 28px rgba(0,0,0,.09);
+}
+
+.snh-nb-inner {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+/* wordmark */
+.snh-wordmark {
+  font-family: var(--snh-serif);
+  font-size: 1.28rem; font-weight: 900;
+  color: var(--snh-navy); text-decoration: none;
+  letter-spacing: -.01em; line-height: 1;
+  flex-shrink: 0;
+  transition: color var(--snh-dur) var(--snh-ease);
+}
+.snh-wordmark em { font-style: normal; color: var(--snh-red); }
+.snh-wordmark:hover { color: var(--snh-blue); }
+
+
+/* ── desktop nav list ── */
+.snh-nav-list {
+  display: flex;
+  align-items: center;
+  gap: .05rem;
+  list-style: none;
+  margin-left: auto;
+  margin-right: .6rem;
+}
+@media (max-width: 960px) { .snh-nav-list { display: none; } }
+
+.snh-ni { position: relative; }
+
+/* shared base for both buttons and plain <a>s */
+.snh-nb, .snh-na {
+  display: inline-flex; align-items: center; gap: .26rem;
+  font-family: var(--snh-sans); font-size: .8rem; font-weight: 500;
+  color: var(--snh-body-txt); text-decoration: none;
+  background: none; border: none; cursor: pointer;
+  padding: .46rem .68rem; border-radius: 8px;
+  white-space: nowrap; line-height: 1;
+  transition: color var(--snh-dur) var(--snh-ease),
+              background var(--snh-dur) var(--snh-ease);
+}
+.snh-nb:hover, .snh-na:hover {
+  color: var(--snh-blue);
+  background: var(--snh-blue-dim);
+}
+.snh-nb.snh-cur, .snh-na.snh-cur { color: var(--snh-blue); }
+
+/* caret */
+.snh-caret {
+  font-size: .72rem; color: var(--snh-muted);
+  transition: transform var(--snh-dur) var(--snh-ease),
+              color    var(--snh-dur) var(--snh-ease);
+  pointer-events: none; flex-shrink: 0;
+}
+.snh-ni.snh-open .snh-nb { color: var(--snh-blue); background: var(--snh-blue-dim); }
+.snh-ni.snh-open .snh-caret { transform: rotate(-180deg); color: var(--snh-blue); }
+
+/* ── dropdown panel ── */
+.snh-drop {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  min-width: 234px;
+  background: var(--snh-white);
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 12px 52px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.05);
+  padding: .42rem;
+  list-style: none;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+  z-index: 10;
+}
+/* notch */
+.snh-drop::before {
+  content: '';
+  position: absolute; top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 12px; height: 6px;
+  background: var(--snh-white);
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  filter: drop-shadow(0 -1px 1px rgba(0,0,0,.05));
+}
+.snh-ni.snh-open .snh-drop {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* drop items */
+.snh-di {
+  display: flex; align-items: center; gap: .65rem;
+  font-family: var(--snh-sans); font-size: .79rem; font-weight: 500;
+  color: var(--snh-body-txt); text-decoration: none;
+  padding: .58rem .85rem; border-radius: 9px;
+  transition: background var(--snh-dur) var(--snh-ease),
+              color     var(--snh-dur) var(--snh-ease);
+}
+.snh-di i {
+  font-size: .9rem; color: var(--snh-blue);
+  width: 18px; text-align: center; flex-shrink: 0;
+  transition: transform var(--snh-dur) var(--snh-ease);
+}
+.snh-di:hover {
+  background: var(--snh-blue-dim);
+  color: var(--snh-blue);
+}
+.snh-di:hover i { transform: translateX(2px); }
+.snh-drop-rule {
+  height: 1px; background: rgba(0,0,0,.06);
+  margin: .26rem .55rem;
+}
+
+/* ── desktop CTA ── */
+.snh-desk-cta {
+  display: inline-flex; align-items: center; gap: .36rem;
+  font-family: var(--snh-sans); font-size: .78rem; font-weight: 700;
+  color: var(--snh-white); background: var(--snh-blue);
+  text-decoration: none;
+  padding: .54rem 1.25rem; border-radius: 999px; white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 3px 14px rgba(0,113,227,.22);
+  transition: background var(--snh-dur) var(--snh-ease),
+              transform  var(--snh-dur) var(--snh-ease),
+              box-shadow var(--snh-dur) var(--snh-ease);
+}
+.snh-desk-cta:hover {
+  background: var(--snh-blue-lit);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(0,113,227,.3);
+}
+@media (max-width: 960px) { .snh-desk-cta { display: none; } }
+
+/* ── hamburger ── */
+.snh-burger {
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px;
+  width: 40px; height: 40px; padding: 9px;
+  background: none; border: none; cursor: pointer;
+  border-radius: 8px; flex-shrink: 0; margin-left: auto;
+  transition: background var(--snh-dur) var(--snh-ease);
+}
+.snh-burger:hover { background: rgba(0,0,0,.05); }
+.snh-burger span {
+  display: block; height: 2px; background: var(--snh-navy);
+  border-radius: 2px;
+  transition: transform .28s var(--snh-ease),
+              opacity   .28s ease,
+              width     .28s ease;
+}
+.snh-burger span:nth-child(1) { width: 20px; }
+.snh-burger span:nth-child(2) { width: 14px; }
+.snh-burger span:nth-child(3) { width: 20px; }
+@media (max-width: 960px) { .snh-burger { display: flex; } }
+
+/* burger → X */
+.snh-burger[aria-expanded="true"] span:nth-child(1) {
+  width: 20px; transform: translateY(7px) rotate(45deg);
+}
+.snh-burger[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0; width: 0;
+}
+.snh-burger[aria-expanded="true"] span:nth-child(3) {
+  width: 20px; transform: translateY(-7px) rotate(-45deg);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   BACKDROP
+════════════════════════════════════════════════════════ */
+#snh-overlay {
+  position: fixed; inset: 0;
+  background: rgba(4, 10, 22, .48);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  z-index: calc(var(--snh-z) + 5);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+#snh-overlay.snh-vis {
+  opacity: 1; visibility: visible; pointer-events: auto;
+}
+
+
+/* ════════════════════════════════════════════════════════
+   MOBILE DRAWER
+════════════════════════════════════════════════════════ */
+#snh-drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(355px, 90vw);
+  background: var(--snh-white);
+  z-index: calc(var(--snh-z) + 6);
+  display: flex; flex-direction: column;
+  transform: translateX(105%);
+  transition: transform var(--snh-dur-lg) var(--snh-ease);
+  overflow: hidden;
+  /* box-shadow only when open */
+  box-shadow: none;
+}
+#snh-drawer.snh-open {
+  transform: translateX(0);
+  box-shadow: -8px 0 48px rgba(0,0,0,.16);
+}
+@media (min-width: 961px) { #snh-drawer { display: none !important; } }
+
+/* drawer head */
+.snh-dh {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .95rem 1.2rem;
+  background: var(--snh-navy);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  flex-shrink: 0;
+}
+.snh-dh-brand {
+  display: flex; align-items: center; gap: .6rem; text-decoration: none;
+}
+.snh-dh-mark {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--snh-navy2); border: 2px solid var(--snh-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--snh-serif); font-size: .82rem; font-weight: 700;
+  color: var(--snh-gold);
+}
+.snh-dh-name {
+  font-family: var(--snh-sans); font-size: .8rem; font-weight: 700; color: #fff;
+}
+.snh-dh-close {
+  width: 32px; height: 32px; border-radius: 7px;
+  border: none; cursor: pointer;
+  background: rgba(255,255,255,.09); color: #fff; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--snh-dur) var(--snh-ease);
+}
+.snh-dh-close:hover { background: rgba(255,255,255,.18); }
+
+/* drawer body */
+.snh-db {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain;
+}
+.snh-mob-nav { list-style: none; }
+
+/* direct link row */
+.snh-ml {
+  display: flex; align-items: center; gap: .7rem;
+  font-family: var(--snh-sans); font-size: .85rem; font-weight: 500;
+  color: var(--snh-body-txt); text-decoration: none;
+  padding: .82rem 1.2rem;
+  border-bottom: 1px solid rgba(0,0,0,.045);
+  transition: background var(--snh-dur) var(--snh-ease),
+              color     var(--snh-dur) var(--snh-ease);
+}
+.snh-ml i { font-size: .95rem; color: var(--snh-blue); width: 19px; text-align: center; flex-shrink: 0; }
+.snh-ml:hover { background: var(--snh-blue-dim); color: var(--snh-blue); }
+
+/* accordion trigger */
+.snh-macc {
+  display: flex; align-items: center; gap: .7rem; width: 100%;
+  font-family: var(--snh-sans); font-size: .85rem; font-weight: 600;
+  color: var(--snh-body-txt); background: none; border: none; cursor: pointer;
+  padding: .82rem 1.2rem;
+  border-bottom: 1px solid rgba(0,0,0,.045);
+  transition: background var(--snh-dur) var(--snh-ease),
+              color     var(--snh-dur) var(--snh-ease);
+}
+.snh-macc .snh-mi  { font-size: .95rem; color: var(--snh-blue); width: 19px; text-align: center; flex-shrink: 0; }
+.snh-macc .snh-mlbl{ flex: 1; text-align: left; }
+.snh-macc .snh-mc  { font-size: .75rem; color: var(--snh-muted); flex-shrink: 0;
+                     transition: transform var(--snh-dur) var(--snh-ease); }
+.snh-macc.snh-open { background: var(--snh-blue-dim); color: var(--snh-blue); }
+.snh-macc.snh-open .snh-mc { transform: rotate(-180deg); }
+.snh-macc.snh-open .snh-mi { color: var(--snh-blue); }
+
+/* accordion panel */
+.snh-mpanel {
+  max-height: 0; overflow: hidden;
+  transition: max-height .3s var(--snh-ease);
+}
+.snh-mpanel.snh-open { max-height: 600px; }
+.snh-mpanel-in {
+  background: rgba(0,113,227,.028);
+  border-bottom: 1px solid rgba(0,0,0,.045);
+}
+
+/* accordion sub-links */
+.snh-msl {
+  display: flex; align-items: center; gap: .65rem;
+  font-family: var(--snh-sans); font-size: .8rem; font-weight: 400;
+  color: #3a4a5c; text-decoration: none;
+  padding: .68rem 1.2rem .68rem 2.6rem;
+  border-bottom: 1px solid rgba(0,0,0,.03);
+  transition: background var(--snh-dur) var(--snh-ease),
+              color     var(--snh-dur) var(--snh-ease);
+}
+.snh-msl:last-child { border-bottom: none; }
+.snh-msl i { font-size: .86rem; color: var(--snh-blue); width: 16px; text-align: center; flex-shrink: 0; }
+.snh-msl:hover { background: rgba(0,113,227,.07); color: var(--snh-blue); }
+
+/* drawer footer */
+.snh-df {
+  padding: .95rem 1.2rem;
+  background: var(--snh-page);
+  border-top: 1px solid var(--snh-line);
+  display: flex; gap: .55rem; flex-shrink: 0;
+}
+.snh-dfb {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: .38rem;
+  font-family: var(--snh-sans); font-size: .76rem; font-weight: 700;
+  text-decoration: none; padding: .62rem; border-radius: 9px;
+  transition: all var(--snh-dur) var(--snh-ease);
+}
+.snh-dfb.alumni {
+  color: var(--snh-navy); background: rgba(0,113,227,.09);
+  border: 1.5px solid rgba(0,113,227,.18);
+}
+.snh-dfb.alumni:hover { background: rgba(0,113,227,.17); }
+.snh-dfb.donate {
+  color: #fff; background: var(--snh-red);
+  border: 1.5px solid transparent;
+  box-shadow: 0 3px 12px rgba(139,0,0,.2);
+}
+.snh-dfb.donate:hover { background: var(--snh-red-lit); }
+.snh-dfb i { font-size: .88rem; }
+</style>
+
+
+<!-- ═══════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════ -->
+<div class="snh-topbar" id="snh-topbar" role="banner">
+  <div class="snh-tb-inner">
+
+    <a href="index.html" class="snh-brand" aria-label="ANSEC – Return to homepage">
+      <div class="snh-brand-mark" aria-hidden="true">A</div>
+      <div class="snh-brand-label">
+        <strong>Anum Presbyterian SHS</strong>
+        <small>Est. 1937 &middot; Anum, Ghana</small>
+      </div>
+    </a>
+
+    <div class="snh-tb-right">
+      <a class="snh-tb-link" href="ansec-contact.html" aria-label="Contact us">
+        <i class="ri-phone-line" aria-hidden="true"></i>
+        <span>Contact</span>
+      </a>
+      <div class="snh-tb-div" aria-hidden="true"></div>
+      <a class="snh-tb-link" href="ansec-alumni.html" aria-label="Alumni portal">
+        <i class="ri-user-star-line" aria-hidden="true"></i>
+        <span>Alumni</span>
+      </a>
+      <div class="snh-tb-div" aria-hidden="true"></div>
+      <a class="snh-tb-cta" href="ansec-donate.html" aria-label="Donate to ANSEC">
+        <i class="ri-heart-3-fill" aria-hidden="true"></i>
+        <span>Donate</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════ -->
+<nav class="snh-navbar" id="snh-navbar" role="navigation" aria-label="Main site navigation">
+  <div class="snh-nb-inner">
+
+    <!-- Wordmark -->
+    <a class="snh-wordmark" href="index.html" aria-label="ANSEC homepage">AN<em>SEC</em></a>
+
+    <!-- ── Desktop nav ── -->
+    <ul class="snh-nav-list" role="menubar" id="snh-desktop-nav">
+
+      <!-- Our School -->
+      <li class="snh-ni" role="none" data-snh-drop>
+        <button class="snh-nb" aria-haspopup="true" aria-expanded="false" role="menuitem">
+          Our School
+          <i class="ri-arrow-down-s-line snh-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="snh-drop" role="menu">
+          <li role="none"><a class="snh-di" href="ansec-history.html" role="menuitem"><i class="ri-time-line"></i>Our History</a></li>
+          <li role="none"><a class="snh-di" href="ansec-mission-vision-values.html" role="menuitem"><i class="ri-eye-line"></i>Mission, Vision &amp; Values</a></li>
+          <li role="none"><a class="snh-di" href="ansec-admin-staff.html" role="menuitem"><i class="ri-user-star-line"></i>Administration &amp; Staff</a></li>
+          <li role="none"><a class="snh-di" href="ansec-campus-facilities.html" role="menuitem"><i class="ri-school-line"></i>Campus &amp; Facilities</a></li>
+          <li role="none"><a class="snh-di" href="ansec-anthem-motto.html" role="menuitem"><i class="ri-music-2-line"></i>School Anthem &amp; Motto</a></li>
+        </ul>
+      </li>
+
+      <!-- Academic Life -->
+      <li class="snh-ni" role="none" data-snh-drop>
+        <button class="snh-nb" aria-haspopup="true" aria-expanded="false" role="menuitem">
+          Academic Life
+          <i class="ri-arrow-down-s-line snh-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="snh-drop" role="menu">
+          <li role="none"><a class="snh-di" href="ansec-programmes.html" role="menuitem"><i class="ri-graduation-cap-line"></i>Programmes Offered</a></li>
+          <li role="none"><a class="snh-di" href="ansec-departments.html" role="menuitem"><i class="ri-building-4-line"></i>Academic Departments</a></li>
+          <li role="none"><a class="snh-di" href="ansec-academic-calendar.html" role="menuitem"><i class="ri-calendar-2-line"></i>Academic Calendar</a></li>
+        </ul>
+      </li>
+
+      <!-- Student Life -->
+      <li class="snh-ni" role="none" data-snh-drop>
+        <button class="snh-nb" aria-haspopup="true" aria-expanded="false" role="menuitem">
+          Student Life
+          <i class="ri-arrow-down-s-line snh-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="snh-drop" role="menu">
+          <li role="none"><a class="snh-di" href="ansec-chaplaincy.html" role="menuitem"><i class="ri-cross-line"></i>Chaplaincy &amp; Worship</a></li>
+          <li role="none"><a class="snh-di" href="ansec-clubs.html" role="menuitem"><i class="ri-group-line"></i>Clubs &amp; Activities</a></li>
+          <li role="none"><a class="snh-di" href="ansec-sports.html" role="menuitem"><i class="ri-football-line"></i>Sports &amp; Athletics</a></li>
+          <li role="none"><a class="snh-di" href="ansec-boarding.html" role="menuitem"><i class="ri-home-heart-line"></i>Boarding &amp; Pastoral Care</a></li>
+          <li role="none"><div class="snh-drop-rule" aria-hidden="true"></div></li>
+          <li role="none"><a class="snh-di" href="ansec-join-a-club.html" role="menuitem"><i class="ri-add-circle-line"></i>Join a Club</a></li>
+        </ul>
+      </li>
+
+      <!-- Community -->
+      <li class="snh-ni" role="none" data-snh-drop>
+        <button class="snh-nb" aria-haspopup="true" aria-expanded="false" role="menuitem">
+          Community
+          <i class="ri-arrow-down-s-line snh-caret" aria-hidden="true"></i>
+        </button>
+        <ul class="snh-drop" role="menu">
+          <li role="none"><a class="snh-di" href="ansec-alumni.html" role="menuitem"><i class="ri-user-heart-line"></i>Alumni Network</a></li>
+          <li role="none"><a class="snh-di" href="ansec-events.html" role="menuitem"><i class="ri-calendar-event-line"></i>Events &amp; News</a></li>
+          <li role="none"><a class="snh-di" href="ansec-donate.html" role="menuitem"><i class="ri-heart-3-line"></i>Support ANSEC</a></li>
+        </ul>
+      </li>
+
+      <!-- Contact — plain link -->
+      <li class="snh-ni" role="none">
+        <a class="snh-na" href="ansec-contact.html" role="menuitem">Contact</a>
+      </li>
+
+    </ul>
+
+    <!-- Desktop CTA -->
+    <a class="snh-desk-cta" href="ansec-programmes.html">
+      <i class="ri-graduation-cap-line" aria-hidden="true"></i>Programmes
+    </a>
+
+    <!-- Hamburger -->
+    <button class="snh-burger" id="snh-burger"
+            aria-label="Open navigation menu"
+            aria-expanded="false"
+            aria-controls="snh-drawer">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════
+     BACKDROP
+═══════════════════════════════════════ -->
+<div id="snh-overlay" aria-hidden="true"></div>
+
+
+<!-- ═══════════════════════════════════════
+     MOBILE DRAWER
+═══════════════════════════════════════ -->
+<div id="snh-drawer" role="dialog" aria-modal="true" aria-label="Site navigation">
+
+  <!-- head -->
+  <div class="snh-dh">
+    <a href="index.html" class="snh-dh-brand" aria-label="ANSEC homepage">
+      <div class="snh-dh-mark" aria-hidden="true">A</div>
+      <span class="snh-dh-name">ANSEC</span>
+    </a>
+    <button class="snh-dh-close" id="snh-dclose" aria-label="Close navigation menu">
+      <i class="ri-close-line" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- scrollable body -->
+  <div class="snh-db">
+    <ul class="snh-mob-nav">
+
+      <!-- Our School accordion -->
+      <li>
+        <button class="snh-macc" data-snh-acc aria-expanded="false" aria-controls="snh-p-school">
+          <i class="ri-information-line snh-mi" aria-hidden="true"></i>
+          <span class="snh-mlbl">Our School</span>
+          <i class="ri-arrow-down-s-line snh-mc" aria-hidden="true"></i>
+        </button>
+        <div class="snh-mpanel" id="snh-p-school">
+          <div class="snh-mpanel-in">
+            <a class="snh-msl" href="ansec-history.html"><i class="ri-time-line"></i>Our History</a>
+            <a class="snh-msl" href="ansec-mission-vision-values.html"><i class="ri-eye-line"></i>Mission, Vision &amp; Values</a>
+            <a class="snh-msl" href="ansec-admin-staff.html"><i class="ri-user-star-line"></i>Administration &amp; Staff</a>
+            <a class="snh-msl" href="ansec-campus-facilities.html"><i class="ri-school-line"></i>Campus &amp; Facilities</a>
+            <a class="snh-msl" href="ansec-anthem-motto.html"><i class="ri-music-2-line"></i>School Anthem &amp; Motto</a>
+          </div>
+        </div>
+      </li>
+
+      <!-- Academic Life accordion -->
+      <li>
+        <button class="snh-macc" data-snh-acc aria-expanded="false" aria-controls="snh-p-academic">
+          <i class="ri-book-open-line snh-mi" aria-hidden="true"></i>
+          <span class="snh-mlbl">Academic Life</span>
+          <i class="ri-arrow-down-s-line snh-mc" aria-hidden="true"></i>
+        </button>
+        <div class="snh-mpanel" id="snh-p-academic">
+          <div class="snh-mpanel-in">
+            <a class="snh-msl" href="ansec-programmes.html"><i class="ri-graduation-cap-line"></i>Programmes Offered</a>
+            <a class="snh-msl" href="ansec-departments.html"><i class="ri-building-4-line"></i>Academic Departments</a>
+            <a class="snh-msl" href="ansec-academic-calendar.html"><i class="ri-calendar-2-line"></i>Academic Calendar</a>
+          </div>
+        </div>
+      </li>
+
+      <!-- Student Life accordion -->
+      <li>
+        <button class="snh-macc" data-snh-acc aria-expanded="false" aria-controls="snh-p-student">
+          <i class="ri-user-smile-line snh-mi" aria-hidden="true"></i>
+          <span class="snh-mlbl">Student Life</span>
+          <i class="ri-arrow-down-s-line snh-mc" aria-hidden="true"></i>
+        </button>
+        <div class="snh-mpanel" id="snh-p-student">
+          <div class="snh-mpanel-in">
+            <a class="snh-msl" href="ansec-chaplaincy.html"><i class="ri-cross-line"></i>Chaplaincy &amp; Worship</a>
+            <a class="snh-msl" href="ansec-clubs.html"><i class="ri-group-line"></i>Clubs &amp; Activities</a>
+            <a class="snh-msl" href="ansec-sports.html"><i class="ri-football-line"></i>Sports &amp; Athletics</a>
+            <a class="snh-msl" href="ansec-boarding.html"><i class="ri-home-heart-line"></i>Boarding &amp; Pastoral Care</a>
+            <a class="snh-msl" href="ansec-join-a-club.html"><i class="ri-add-circle-line"></i>Join a Club</a>
+          </div>
+        </div>
+      </li>
+
+      <!-- Community accordion -->
+      <li>
+        <button class="snh-macc" data-snh-acc aria-expanded="false" aria-controls="snh-p-community">
+          <i class="ri-community-line snh-mi" aria-hidden="true"></i>
+          <span class="snh-mlbl">Community</span>
+          <i class="ri-arrow-down-s-line snh-mc" aria-hidden="true"></i>
+        </button>
+        <div class="snh-mpanel" id="snh-p-community">
+          <div class="snh-mpanel-in">
+            <a class="snh-msl" href="ansec-alumni.html"><i class="ri-user-heart-line"></i>Alumni Network</a>
+            <a class="snh-msl" href="ansec-events.html"><i class="ri-calendar-event-line"></i>Events &amp; News</a>
+            <a class="snh-msl" href="ansec-donate.html"><i class="ri-heart-3-line"></i>Support ANSEC</a>
+          </div>
+        </div>
+      </li>
+
+      <!-- Standalone links -->
+      <li>
+        <a class="snh-ml" href="ansec-contact.html">
+          <i class="ri-map-pin-line" aria-hidden="true"></i>Contact &amp; Directions
+        </a>
+      </li>
+      <li>
+        <a class="snh-ml" href="ansec-academic-calendar.html">
+          <i class="ri-calendar-2-line" aria-hidden="true"></i>Academic Calendar
+        </a>
+      </li>
+
+    </ul>
+  </div><!-- /snh-db -->
+
+  <!-- footer CTAs -->
+  <div class="snh-df">
+    <a href="ansec-alumni.html" class="snh-dfb alumni">
+      <i class="ri-user-heart-line" aria-hidden="true"></i>Alumni Portal
+    </a>
+    <a href="ansec-donate.html" class="snh-dfb donate">
+      <i class="ri-heart-3-fill" aria-hidden="true"></i>Donate
+    </a>
+  </div>
+
+</div><!-- /snh-drawer -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+     ─────────────────────────────────────────────────────
+     Conflict-free audit:
+     • Wrapped in IIFE — nothing leaks to global scope
+     • Only global written: window.__snhReady = true
+       ("snh" prefix, not used by any existing page)
+     • Local var names: snhNav, snhBurger, snhDrawer,
+       snhOverlay, snhDclose, snhDrops, snhAccs,
+       snhIsOpen, snhScrolled, snhRzT
+       — none overlap with: navbar toggle menu closeBtn
+         overlay isMobile menuOpen scrolled (existing pages)
+     • CSS classes toggled: snh-open  snh-vis  snh-is-scrolled
+       snh-locked  snh-offset  snh-cur  snh-open
+       — none overlap with: open visible scrolled menu-open
+═══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* run-once guard */
+  if (window.__snhReady) return;
+  window.__snhReady = true;
+
+  /* ── element refs ── */
+  var snhNav     = document.getElementById('snh-navbar');
+  var snhBurger  = document.getElementById('snh-burger');
+  var snhDrawer  = document.getElementById('snh-drawer');
+  var snhOverlay = document.getElementById('snh-overlay');
+  var snhDclose  = document.getElementById('snh-dclose');
+  var snhDeskNav = document.getElementById('snh-desktop-nav');
+
+  if (!snhNav || !snhBurger || !snhDrawer) return;
+
+  /* ── state ── */
+  var snhIsOpen   = false;
+  var snhScrolled = false;
+  var snhRzT;
+
+  /* focusable selector (only used inside IIFE) */
+  var SNH_FOCUS = 'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+
+  /* ════════════════════════════
+     DRAWER  open / close
+  ════════════════════════════ */
+  function snhOpen() {
+    snhIsOpen = true;
+    snhDrawer.classList.add('snh-open');
+    snhOverlay.classList.add('snh-vis');
+    snhOverlay.removeAttribute('aria-hidden');
+    snhBurger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('snh-locked');
+    /* focus first item after transition */
+    setTimeout(function () {
+      var f = snhDrawer.querySelector(SNH_FOCUS);
+      if (f) f.focus();
+    }, 70);
+  }
+
+  function snhClose() {
+    if (!snhIsOpen) return;
+    snhIsOpen = false;
+    snhDrawer.classList.remove('snh-open');
+    snhOverlay.classList.remove('snh-vis');
+    snhOverlay.setAttribute('aria-hidden', 'true');
+    snhBurger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('snh-locked');
+    snhBurger.focus();
+  }
+
+  snhBurger.addEventListener('click', function () {
+    snhIsOpen ? snhClose() : snhOpen();
+  });
+  if (snhDclose)  snhDclose.addEventListener('click', snhClose);
+  snhOverlay.addEventListener('click', snhClose);
+
+  /* focus trap inside drawer */
+  snhDrawer.addEventListener('keydown', function (e) {
+    if (!snhIsOpen) return;
+    if (e.key === 'Escape') { snhClose(); return; }
+    if (e.key !== 'Tab') return;
+    var items = Array.from(snhDrawer.querySelectorAll(SNH_FOCUS));
+    if (!items.length) return;
+    var first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+
+  /* ════════════════════════════
+     MOBILE ACCORDIONS
+  ════════════════════════════ */
+  var snhAccs = snhDrawer.querySelectorAll('[data-snh-acc]');
+
+  function snhCloseAccs(except) {
+    snhAccs.forEach(function (b) {
+      if (b === except) return;
+      b.classList.remove('snh-open');
+      b.setAttribute('aria-expanded', 'false');
+      var p = document.getElementById(b.getAttribute('aria-controls'));
+      if (p) p.classList.remove('snh-open');
+    });
+  }
+
+  snhAccs.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pid   = btn.getAttribute('aria-controls');
+      var panel = document.getElementById(pid);
+      var was   = btn.classList.contains('snh-open');
+      snhCloseAccs(btn);
+      if (was) {
+        btn.classList.remove('snh-open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (panel) panel.classList.remove('snh-open');
+      } else {
+        btn.classList.add('snh-open');
+        btn.setAttribute('aria-expanded', 'true');
+        if (panel) panel.classList.add('snh-open');
+      }
+    });
+  });
+
+  /* ════════════════════════════
+     DESKTOP DROPDOWNS
+  ════════════════════════════ */
+  var snhDrops = snhDeskNav
+    ? snhDeskNav.querySelectorAll('[data-snh-drop]')
+    : [];
+
+  function snhCloseDrops(except) {
+    snhDrops.forEach(function (item) {
+      if (item === except) return;
+      item.classList.remove('snh-open');
+      var b = item.querySelector('.snh-nb');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  snhDrops.forEach(function (item) {
+    var btn = item.querySelector('.snh-nb');
+    if (!btn) return;
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isNowOpen = item.classList.contains('snh-open');
+      snhCloseDrops(item);
+      if (isNowOpen) {
+        item.classList.remove('snh-open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        item.classList.add('snh-open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+
+    /* close when keyboard focus leaves */
+    item.addEventListener('focusout', function () {
+      setTimeout(function () {
+        if (!item.contains(document.activeElement)) {
+          item.classList.remove('snh-open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      }, 120);
+    });
+  });
+
+  /* click anywhere outside → close drops */
+  document.addEventListener('click', function () { snhCloseDrops(); });
+
+  /* Escape key */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (snhIsOpen) snhClose();
+    else snhCloseDrops();
+  });
+
+  /* ════════════════════════════
+     SCROLL  →  navbar shadow
+  ════════════════════════════ */
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY;
+    if (y > 24 && !snhScrolled) {
+      snhNav.classList.add('snh-is-scrolled');
+      snhScrolled = true;
+    } else if (y <= 24 && snhScrolled) {
+      snhNav.classList.remove('snh-is-scrolled');
+      snhScrolled = false;
+    }
+  }, { passive: true });
+
+  /* ════════════════════════════
+     RESIZE  →  auto-close drawer
+  ════════════════════════════ */
+  window.addEventListener('resize', function () {
+    clearTimeout(snhRzT);
+    snhRzT = setTimeout(function () {
+      if (window.innerWidth > 960 && snhIsOpen) snhClose();
+    }, 160);
+  });
+
+  /* ════════════════════════════
+     ACTIVE PAGE  →  highlight
+  ════════════════════════════ */
+  var snhPage = window.location.pathname.split('/').pop() || 'index.html';
+
+  document.querySelectorAll('.snh-di, .snh-na, .snh-msl, .snh-ml').forEach(function (link) {
+    var href = (link.getAttribute('href') || '').split('/').pop().split('#')[0];
+    if (href && href === snhPage) {
+      link.classList.add('snh-cur');
+      /* highlight parent desktop trigger */
+      var parentItem = link.closest('.snh-ni');
+      if (parentItem) {
+        var ptBtn = parentItem.querySelector('.snh-nb');
+        if (ptBtn) ptBtn.classList.add('snh-cur');
+      }
+    }
+  });
+
+  /* ════════════════════════════
+     BODY OFFSET
+  ════════════════════════════ */
+  document.body.classList.add('snh-offset');
+
+})();
+</script>

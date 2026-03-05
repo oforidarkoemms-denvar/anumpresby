@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANSEC — Header Component</title>
+
+  <!-- ── Google Fonts: same stack used across all ANSEC pages ── -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Remix Icons (same as original) -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       ANSEC DESIGN SYSTEM TOKENS
+       Shared with History, Admin, Mission, Campus, Anthem pages
+    ═══════════════════════════════════════════════════════════ */
+    :root {
+      /* ── Brand palette ── */
+      --accent:          #0071e3;
+      --accent-soft:     rgba(0, 113, 227, 0.08);
+      --accent-mid:      rgba(0, 113, 227, 0.18);
+      --grad-btn:        linear-gradient(to right, #00b4ff, #6a00ff);
+
+      /* ── Navy tones (topbar) ── */
+      --navy-900:        #0a1929;
+      --navy-800:        #0f2744;
+      --navy-700:        #1a3a5c;
+      --navy-600:        #2d5278;
+
+      /* ── Gold accent (logo border, hover) ── */
+      --gold-600:        #b8941f;
+      --gold-500:        #d4af37;
+      --gold-400:        #ddc356;
+
+      /* ── Presbyterian Red — deeper than crimson (#9e0000) ── */
+      --presby-red:      #8b0000;          /* deep presbyterian red  */
+      --presby-red-h:    #a50000;          /* hover — slightly brighter */
+      --presby-red-glow: rgba(139,0,0,.28);
+
+      /* ── Page surfaces ── */
+      --bg-page:         #f5f7fa;
+      --bg-white:        #ffffff;
+      --bg-dark:         #060f1e;
+      --bg-darkblue:     #071428;
+
+      /* ── Text ── */
+      --text-primary:    #0d1b2a;
+      --text-body:       #3a4a5c;
+      --text-muted:      #7a8fa6;
+
+      /* ── Neutral scale ── */
+      --neutral-50:      #fafafa;
+      --neutral-100:     #f5f5f5;
+      --neutral-200:     #e5e5e5;
+      --neutral-300:     #d4d4d4;
+      --neutral-500:     #737373;
+      --neutral-700:     #404040;
+
+      /* ── Typography — exact ANSEC stack ── */
+      --serif:           'Playfair Display', Georgia, serif;
+      --lora:            'Lora', Georgia, serif;
+      --sans:            'DM Sans', system-ui, sans-serif;
+
+      /* ── Header geometry ── */
+      --topbar-height:   56px;
+      --navbar-height:   64px;
+      --container-pad:   1.5rem;
+
+      /* ── Transitions ── */
+      --tr:              0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      --tr-slow:         0.45s cubic-bezier(0.22, 1, 0.36, 1);
+
+      /* ── Shadows ── */
+      --shadow-light:    rgba(10, 25, 41, 0.07);
+      --shadow-medium:   rgba(10, 25, 41, 0.14);
+      --shadow-heavy:    rgba(10, 25, 41, 0.25);
+      --shadow-card:     0 2px 12px rgba(0,0,0,.05), 0 6px 28px rgba(0,0,0,.05);
+
+      /* ── Z-stack ── */
+      --z-topbar:        1000;
+      --z-navbar:        999;
+      --z-dropdown:      998;
+      --z-overlay:       997;
+      --z-mobilemenu:    1001;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESET
+    ═══════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      color: var(--text-primary);
+      background: var(--bg-page);
+      -webkit-font-smoothing: antialiased;
+    }
+    body.menu-open { overflow: hidden; }
+    a  { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       TOPBAR  (56 px — fixed, dark navy)
+    ═══════════════════════════════════════════════════════════ */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: var(--topbar-height);
+      background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-900) 100%);
+      z-index: var(--z-topbar);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+
+    .topbar-inner {
+      max-width: 1400px;
+      margin-inline: auto;
+      padding-inline: var(--container-pad);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Brand (logo + name) ── */
+    .school-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .school-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold-500);
+      box-shadow: 0 0 0 3px rgba(212,175,55,.18);
+      flex-shrink: 0;
+    }
+    .school-name {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.03em;
+      line-height: 1.2;
+    }
+    .school-name .sub-name {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.58rem;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+      margin-top: 1px;
+    }
+
+    /* ── Topbar right actions ── */
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .alumni-link {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: rgba(220,232,248,.8);
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.44rem 0.85rem;
+      border-radius: 6px;
+      transition: color var(--tr), background var(--tr);
+    }
+    .alumni-link i { font-size: 1.05rem; }
+    .alumni-link:hover {
+      color: var(--gold-400);
+      background: rgba(255,255,255,.07);
+    }
+    .alumni-link:focus-visible {
+      outline: 2px solid var(--gold-400);
+      outline-offset: 2px;
+    }
+
+    /* ── Donate button — Presbyterian Red ── */
+    .donate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--presby-red);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.52rem 1.15rem;
+      border-radius: 6px;
+      letter-spacing: 0.015em;
+      box-shadow: 0 2px 10px var(--presby-red-glow);
+      transition: background var(--tr), transform var(--tr), box-shadow var(--tr);
+      position: relative;
+      overflow: hidden;
+    }
+    .donate-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.10), transparent);
+      border-radius: inherit;
+    }
+    .donate-btn i { font-size: 1rem; }
+    .donate-btn:hover {
+      background: var(--presby-red-h);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 18px var(--presby-red-glow);
+    }
+    .donate-btn:active  { transform: translateY(0); }
+    .donate-btn:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    /* Responsive text helpers */
+    .tb-text { /* topbar text label — hidden below 680px */ }
+    @media (max-width: 679px) { .tb-text { display: none; } }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       NAVBAR  (64 px — fixed, white, sits below topbar)
+    ═══════════════════════════════════════════════════════════ */
+    .navbar {
+      position: fixed;
+      top: var(--topbar-height);
+      left: 0;
+      width: 100%;
+      height: var(--navbar-height);
+      background: var(--bg-white);
+      border-bottom: 1px solid rgba(0,0,0,.07);
+      box-shadow: 0 1px 4px var(--shadow-light);
+      z-index: var(--z-navbar);
+      transition: box-shadow var(--tr), background var(--tr);
+    }
+    .navbar.scrolled {
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 4px 20px var(--shadow-medium);
+    }
+
+    .navbar-inner {
+      max-width: 1400px;
+      margin-inline: auto;
+      padding-inline: var(--container-pad);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* ── ANSEC wordmark ── */
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy-800);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: color var(--tr);
+    }
+    .nav-logo:hover { color: var(--gold-600); }
+    .nav-logo:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
+    /* ── Desktop menu ── */
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .navbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+    }
+
+    /* ── Nav item ── */
+    .nav-item { position: relative; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.62rem 1rem;
+      border-radius: 7px;
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-body);
+      white-space: nowrap;
+      transition: color var(--tr), background var(--tr);
+    }
+    .nav-link i { font-size: 1.05rem; flex-shrink: 0; }
+    .nav-link:hover {
+      color: var(--navy-800);
+      background: var(--neutral-100);
+    }
+    .nav-link:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* active page indicator */
+    .nav-item.is-active > .nav-link,
+    .nav-item.is-active > .dropdown-toggle {
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    /* Dropdown caret */
+    .dropdown-caret {
+      font-size: 1.1rem;
+      margin-left: 0.1rem;
+      transition: transform var(--tr);
+      flex-shrink: 0;
+    }
+    .nav-item.open > .dropdown-toggle .dropdown-caret { transform: rotate(180deg); }
+
+    /* ── Dropdown ── */
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 248px;
+      background: var(--bg-white);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 10px;
+      padding: 0.45rem;
+      box-shadow: 0 8px 28px var(--shadow-medium), 0 2px 8px var(--shadow-light);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity var(--tr), transform var(--tr), visibility var(--tr);
+      z-index: var(--z-dropdown);
+      pointer-events: none;
+    }
+    /* Open via JS .open class OR CSS hover on non-touch */
+    .nav-item.open .dropdown-menu,
+    .no-touch .nav-item:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ── Dropdown item ── */
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.68rem 0.9rem;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-body);
+      width: 100%;
+      text-align: left;
+      transition: color var(--tr), background var(--tr), padding-left var(--tr);
+    }
+    .dropdown-item i {
+      font-size: 1.05rem;
+      color: var(--neutral-500);
+      flex-shrink: 0;
+      transition: color var(--tr);
+    }
+    .dropdown-item:hover {
+      background: var(--neutral-100);
+      color: var(--navy-800);
+      padding-left: 1.1rem;
+    }
+    .dropdown-item:hover i { color: var(--accent); }
+    .dropdown-item:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* ── Submenu (flyout) ── */
+    .has-sub { position: relative; }
+    .submenu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .submenu-caret {
+      font-size: 1.05rem;
+      color: var(--neutral-500);
+      transition: transform var(--tr);
+    }
+    .has-sub.open .submenu-caret,
+    .no-touch .has-sub:hover .submenu-caret { transform: rotate(90deg); }
+
+    .submenu {
+      position: absolute;
+      top: 0;
+      left: calc(100% + 6px);
+      min-width: 224px;
+      background: var(--bg-white);
+      border: 1px solid rgba(0,0,0,.06);
+      border-radius: 10px;
+      padding: 0.45rem;
+      box-shadow: 0 8px 28px var(--shadow-medium);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-6px);
+      transition: opacity var(--tr), transform var(--tr), visibility var(--tr);
+      z-index: var(--z-dropdown);
+      pointer-events: none;
+    }
+    .has-sub.open .submenu,
+    .no-touch .has-sub:hover .submenu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .submenu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.58rem 0.85rem;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 0.845rem;
+      font-weight: 400;
+      color: var(--text-body);
+      width: 100%;
+      text-align: left;
+      transition: color var(--tr), background var(--tr), padding-left var(--tr);
+    }
+    .submenu-item i {
+      font-size: 0.95rem;
+      color: var(--neutral-500);
+      transition: color var(--tr);
+    }
+    .submenu-item:hover {
+      background: var(--neutral-100);
+      color: var(--navy-800);
+      padding-left: 1rem;
+    }
+    .submenu-item:hover i { color: var(--accent); }
+    .submenu-item:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* ── Hamburger toggle (mobile only) ── */
+    .navbar-toggle {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      flex-shrink: 0;
+      margin-left: auto;
+      transition: background var(--tr);
+      position: relative;
+      z-index: var(--z-mobilemenu);
+    }
+    .navbar-toggle:hover { background: var(--neutral-100); }
+    .navbar-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Hamburger bars */
+    .hb {
+      width: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .hb span {
+      display: block;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--navy-800);
+      transition: transform var(--tr), opacity var(--tr), width var(--tr);
+      transform-origin: center;
+    }
+    .hb span:nth-child(2) { width: 75%; align-self: flex-end; }
+
+    /* X state */
+    .navbar-toggle[aria-expanded="true"] .hb span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .navbar-toggle[aria-expanded="true"] .hb span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .navbar-toggle[aria-expanded="true"] .hb span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       MOBILE OVERLAY
+    ═══════════════════════════════════════════════════════════ */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,15,30,.55);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: var(--z-overlay);
+      opacity: 0;
+      transition: opacity var(--tr-slow);
+    }
+    .mobile-overlay.visible {
+      opacity: 1;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       MOBILE MENU PANEL  (slide from right)
+    ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 992px) {
+
+      .navbar-toggle { display: flex; }
+
+      .navbar-menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(320px, 88vw);
+        height: 100dvh;           /* dynamic viewport height — handles address bar */
+        background: var(--bg-white);
+        z-index: var(--z-mobilemenu);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(110%);
+        transition: transform var(--tr-slow);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        box-shadow: -6px 0 32px var(--shadow-heavy);
+      }
+
+      .navbar-menu.open {
+        transform: translateX(0);
+      }
+
+      .mobile-overlay { display: block; }
+
+      /* Mobile menu header strip */
+      .mobile-menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.2rem;
+        border-bottom: 1px solid var(--neutral-200);
+        flex-shrink: 0;
+        /* push below topbar+navbar stack */
+        padding-top: calc(var(--topbar-height) + var(--navbar-height) + 0.6rem);
+      }
+
+      .mobile-menu-label {
+        font-family: var(--sans);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .mobile-close-btn {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: var(--neutral-100);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-body);
+        font-size: 1.2rem;
+        transition: background var(--tr), color var(--tr);
+        flex-shrink: 0;
+      }
+      .mobile-close-btn:hover { background: var(--neutral-200); color: var(--navy-800); }
+
+      /* Nav list in panel */
+      .navbar-nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0.75rem 0.9rem;
+        flex: 1;
+      }
+
+      .nav-link {
+        padding: 0.88rem 0.9rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+      }
+
+      /* Mobile dropdown — accordion, not flyout */
+      .dropdown-menu {
+        position: static;
+        min-width: 100%;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background: var(--neutral-50);
+        border-left: 2.5px solid rgba(0,113,227,.25);
+        margin: 0.3rem 0 0.3rem 1.1rem;
+        padding: 0.3rem 0.4rem;
+        max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height var(--tr-slow);
+      }
+      .nav-item.open .dropdown-menu {
+        max-height: 640px;
+        pointer-events: auto;
+      }
+
+      /* Mobile submenu — nested indent */
+      .submenu {
+        position: static;
+        min-width: 100%;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background: var(--bg-white);
+        border-left: 2px solid var(--gold-500);
+        margin: 0.25rem 0 0.25rem 1rem;
+        padding: 0.25rem 0.4rem;
+        max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height var(--tr-slow);
+      }
+      .has-sub.open .submenu {
+        max-height: 400px;
+        pointer-events: auto;
+      }
+
+      /* Override hover states — they have no meaning on mobile */
+      .no-touch .nav-item:hover .dropdown-menu,
+      .no-touch .has-sub:hover .submenu {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        max-height: 0;
+        pointer-events: none;
+      }
+      .nav-item.open .dropdown-menu,
+      .has-sub.open .submenu {
+        max-height: 640px;
+        pointer-events: auto;
+      }
+
+      /* Mobile caret — points down instead of right */
+      .submenu-caret { transform: rotate(0deg) !important; }
+      .has-sub.open .submenu-caret { transform: rotate(90deg) !important; }
+
+      /* Mobile donate + alumni in panel footer */
+      .mobile-footer {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 1rem 0.9rem 1.5rem;
+        border-top: 1px solid var(--neutral-200);
+        flex-shrink: 0;
+      }
+      .mobile-footer .donate-btn {
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        border-radius: 8px;
+      }
+      .mobile-footer .alumni-link {
+        justify-content: center;
+        padding: 0.65rem 1.5rem;
+        border: 1.5px solid var(--neutral-200);
+        border-radius: 8px;
+        color: var(--text-body);
+        font-size: 0.9rem;
+      }
+      .mobile-footer .alumni-link:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --topbar-height:  50px;
+        --navbar-height:  56px;
+        --container-pad:  1rem;
+      }
+      .school-name { font-size: 1rem; }
+      /* Only show icon on very small topbar */
+    }
+
+    @media (max-width: 480px) {
+      .navbar-menu { width: 100%; box-shadow: none; }
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       ACCESSIBILITY
+    ═══════════════════════════════════════════════════════════ */
+    *:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* On touch devices, suppress CSS-hover-driven dropdowns */
+    @media (hover: none) {
+      .no-touch .nav-item:hover .dropdown-menu,
+      .no-touch .has-sub:hover .submenu {
+        opacity: 0; visibility: hidden;
+        pointer-events: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (prefers-contrast: high) {
+      .navbar { border-bottom: 2px solid var(--neutral-300); }
+    }
+
+    @media print {
+      .topbar, .navbar { position: static; }
+      .navbar-toggle, .dropdown-menu, .submenu, .mobile-overlay { display: none !important; }
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       DEMO CONTENT — remove in production
+    ═══════════════════════════════════════════════════════════ */
+    .demo-page {
+      padding-top: calc(var(--topbar-height) + var(--navbar-height) + 3rem);
+      padding-inline: 2rem;
+      min-height: 200vh;
+    }
+    .demo-hero {
+      max-width: 720px;
+      margin: 0 auto 4rem;
+      text-align: center;
+    }
+    .demo-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--navy-800);
+      margin-bottom: 1rem;
+    }
+    .demo-hero h1 em { font-style: italic; color: var(--accent); }
+    .demo-hero p {
+      font-family: var(--lora);
+      font-size: 1.1rem;
+      color: var(--text-body);
+      line-height: 1.85;
+    }
+    .demo-token {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      margin-top: 1.5rem;
+      padding: .5rem 1rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-mid);
+      font-family: var(--sans);
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .05em;
+    }
+    .donate-swatch {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border-radius: 3px;
+      background: var(--presby-red);
+      border: 1px solid rgba(0,0,0,.15);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+  TOPBAR — 56px fixed strip
+═══════════════════════════════════════════════════════════ -->
+<div class="topbar" id="topbar" role="banner">
+  <div class="topbar-inner">
+
+    <!-- Brand -->
+    <a href="../index.html" class="school-brand" aria-label="Anum Presbyterian Senior High School home">
+      <img
+        src="../assets/images/ansecLogo.jpg"
+        alt="ANSEC Logo"
+        class="school-logo"
+        width="40" height="40"
+      />
+      <span class="school-name">
+        Anum Presby SHS
+        <span class="sub-name">Est. 1937 · Anum, Ghana</span>
+      </span>
+    </a>
+
+    <!-- Actions -->
+    <div class="topbar-actions">
+      <a href="../pages/alumni.html" class="alumni-link" aria-label="Alumni Portal">
+        <i class="ri-user-star-line" aria-hidden="true"></i>
+        <span class="tb-text">Alumni</span>
+      </a>
+      <a href="../pages/donate.html" class="donate-btn" aria-label="Make a donation to ANSEC">
+        <i class="ri-heart-3-fill" aria-hidden="true"></i>
+        <span class="tb-text">Donate</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+  NAVBAR — 64px fixed strip below topbar
+═══════════════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+
+    <!-- Wordmark -->
+    <a href="../index.html" class="nav-logo" aria-label="ANSEC home">ANSEC</a>
+
+    <!-- ── Hamburger (mobile) ── -->
+    <button
+      class="navbar-toggle"
+      id="navToggle"
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+      aria-controls="navMenu"
+    >
+      <span class="hb" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <!-- ── Main menu panel ── -->
+    <div class="navbar-menu" id="navMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+
+      <!-- Mobile-only panel header -->
+      <div class="mobile-menu-header">
+        <span class="mobile-menu-label">Navigation</span>
+        <button class="mobile-close-btn" id="navClose" aria-label="Close navigation menu">
+          <i class="ri-close-line" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Nav list -->
+      <ul class="navbar-nav" role="menubar" id="navList">
+
+        <!-- ── Our School ── -->
+        <li class="nav-item has-dropdown" role="none">
+          <button
+            class="nav-link dropdown-toggle"
+            aria-expanded="false"
+            aria-haspopup="true"
+            role="menuitem"
+          >
+            <i class="ri-information-line" aria-hidden="true"></i>
+            <span>Our School</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="none">
+              <a href="../pages/ansec-history.html" class="dropdown-item" role="menuitem">
+                <i class="ri-time-line" aria-hidden="true"></i>
+                <span>Our History</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="../pages/ansec-mission-vision-values.html" class="dropdown-item" role="menuitem">
+                <i class="ri-eye-line" aria-hidden="true"></i>
+                <span>Mission, Vision &amp; Values</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="../pages/ansec-admin-staff.html" class="dropdown-item" role="menuitem">
+                <i class="ri-user-star-line" aria-hidden="true"></i>
+                <span>Administration &amp; Staff</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="../pages/ansec-campus-facilities.html" class="dropdown-item" role="menuitem">
+                <i class="ri-school-line" aria-hidden="true"></i>
+                <span>Campus &amp; Facilities</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="../pages/ansec-anthem-motto.html" class="dropdown-item" role="menuitem">
+                <i class="ri-music-2-line" aria-hidden="true"></i>
+                <span>School Anthem &amp; Motto</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ── Academic Life ── -->
+        <li class="nav-item has-dropdown" role="none">
+          <button
+            class="nav-link dropdown-toggle"
+            aria-expanded="false"
+            aria-haspopup="true"
+            role="menuitem"
+          >
+            <i class="ri-book-open-line" aria-hidden="true"></i>
+            <span>Academic Life</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="none">
+              <a href="#programs" class="dropdown-item" role="menuitem">
+                <i class="ri-graduation-cap-line" aria-hidden="true"></i>
+                <span>Programmes Offered</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#curriculum" class="dropdown-item" role="menuitem">
+                <i class="ri-booklet-line" aria-hidden="true"></i>
+                <span>Curriculum &amp; Learning</span>
+              </a>
+            </li>
+            <!-- Departments (flyout submenu) -->
+            <li class="has-sub" role="none">
+              <button
+                class="dropdown-item submenu-toggle"
+                aria-expanded="false"
+                aria-haspopup="true"
+                role="menuitem"
+              >
+                <i class="ri-building-4-line" aria-hidden="true"></i>
+                <span>Academic Departments</span>
+                <i class="ri-arrow-right-s-line submenu-caret" aria-hidden="true"></i>
+              </button>
+              <ul class="submenu" role="menu">
+                <li role="none">
+                  <a href="#science" class="submenu-item" role="menuitem">
+                    <i class="ri-flask-line" aria-hidden="true"></i>
+                    <span>Science</span>
+                  </a>
+                </li>
+                <li role="none">
+                  <a href="#mathematics" class="submenu-item" role="menuitem">
+                    <i class="ri-calculator-line" aria-hidden="true"></i>
+                    <span>Mathematics</span>
+                  </a>
+                </li>
+                <li role="none">
+                  <a href="#languages" class="submenu-item" role="menuitem">
+                    <i class="ri-translate-2" aria-hidden="true"></i>
+                    <span>Languages</span>
+                  </a>
+                </li>
+                <li role="none">
+                  <a href="#social-studies" class="submenu-item" role="menuitem">
+                    <i class="ri-earth-line" aria-hidden="true"></i>
+                    <span>Humanities</span>
+                  </a>
+                </li>
+                <li role="none">
+                  <a href="#business" class="submenu-item" role="menuitem">
+                    <i class="ri-briefcase-4-line" aria-hidden="true"></i>
+                    <span>Business</span>
+                  </a>
+                </li>
+                <li role="none">
+                  <a href="#vocational" class="submenu-item" role="menuitem">
+                    <i class="ri-tools-line" aria-hidden="true"></i>
+                    <span>Technical &amp; Vocational</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li role="none">
+              <a href="#calendar" class="dropdown-item" role="menuitem">
+                <i class="ri-calendar-2-line" aria-hidden="true"></i>
+                <span>Academic Calendar</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#results" class="dropdown-item" role="menuitem">
+                <i class="ri-award-line" aria-hidden="true"></i>
+                <span>WASSCE Results</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ── Faith & Student Life ── -->
+        <li class="nav-item has-dropdown" role="none">
+          <button
+            class="nav-link dropdown-toggle"
+            aria-expanded="false"
+            aria-haspopup="true"
+            role="menuitem"
+          >
+            <i class="ri-user-smile-line" aria-hidden="true"></i>
+            <span>Faith &amp; Student Life</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li role="none">
+              <a href="#chaplaincy" class="dropdown-item" role="menuitem">
+                <i class="ri-cross-line" aria-hidden="true"></i>
+                <span>Chaplaincy &amp; Worship</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#clubs" class="dropdown-item" role="menuitem">
+                <i class="ri-group-line" aria-hidden="true"></i>
+                <span>Clubs &amp; Societies</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#sports" class="dropdown-item" role="menuitem">
+                <i class="ri-football-line" aria-hidden="true"></i>
+                <span>Sports &amp; Athletics</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#boarding" class="dropdown-item" role="menuitem">
+                <i class="ri-home-heart-line" aria-hidden="true"></i>
+                <span>Boarding &amp; Pastoral Care</span>
+              </a>
+            </li>
+            <li role="none">
+              <a href="#events" class="dropdown-item" role="menuitem">
+                <i class="ri-calendar-check-line" aria-hidden="true"></i>
+                <span>School Events</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ── Events (simple link) ── -->
+        <li class="nav-item" role="none">
+          <a href="#events" class="nav-link" role="menuitem">
+            <i class="ri-community-line" aria-hidden="true"></i>
+            <span>Events</span>
+          </a>
+        </li>
+
+        <!-- ── Contact ── -->
+        <li class="nav-item" role="none">
+          <a href="#contact" class="nav-link" role="menuitem">
+            <i class="ri-map-pin-line" aria-hidden="true"></i>
+            <span>Contact</span>
+          </a>
+        </li>
+
+      </ul>
+      <!-- /navbar-nav -->
+
+      <!-- Mobile-only panel footer with donate + alumni CTA -->
+      <div class="mobile-footer">
+        <a href="../pages/donate.html" class="donate-btn" aria-label="Make a donation to ANSEC">
+          <i class="ri-heart-3-fill" aria-hidden="true"></i>
+          <span>Donate to ANSEC</span>
+        </a>
+        <a href="../pages/alumni.html" class="alumni-link" aria-label="Alumni Portal">
+          <i class="ri-user-star-line" aria-hidden="true"></i>
+          <span>Alumni Portal</span>
+        </a>
+      </div>
+
+    </div>
+    <!-- /navbar-menu -->
+
+  </div>
+</nav>
+
+<!-- Dim overlay behind mobile panel -->
+<div class="mobile-overlay" id="navOverlay" aria-hidden="true"></div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+  DEMO PAGE CONTENT — remove in production
+═══════════════════════════════════════════════════════════ -->
+<main class="demo-page">
+  <div class="demo-hero">
+    <h1>ANSEC <em>Header</em> Component</h1>
+    <p>
+      Full design-system rewrite using Playfair Display, Lora, and DM Sans.
+      Topbar sits at <strong>56 px</strong>, navbar at <strong>64 px</strong>.
+      Dropdown menus on desktop, slide-in panel on mobile with accordion behaviour.
+    </p>
+    <div class="demo-token">
+      <span class="donate-swatch"></span>
+      Presbyterian Red — <code>--presby-red: #8b0000</code>
+    </div>
+  </div>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+  NAVIGATION JAVASCRIPT
+  Clean, class-based — no jQuery, no external deps
+═══════════════════════════════════════════════════════════ */
+<script>
+(function () {
+  'use strict';
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
+  const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+  const isMobile = () => window.innerWidth <= 992;
+
+  /* ── Touch detection — add .no-touch to body for hover CSS ─ */
+  if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
+    document.body.classList.add('no-touch');
+  }
+
+  /* ── State ─────────────────────────────────────────────────── */
+  const navbar   = $('#navbar');
+  const toggle   = $('#navToggle');
+  const menu     = $('#navMenu');
+  const closeBtn = $('#navClose');
+  const overlay  = $('#navOverlay');
+  let menuOpen   = false;
+  let scrolled   = false;
+
+  /* ═══════════════════════════════════════════════════════════
+     MOBILE MENU OPEN / CLOSE
+  ═══════════════════════════════════════════════════════════ */
+  function openMenu() {
+    menuOpen = true;
+    menu.classList.add('open');
+    overlay.classList.add('visible');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close navigation menu');
+    document.body.classList.add('menu-open');
+    // Move focus into panel
+    setTimeout(() => { closeBtn && closeBtn.focus(); }, 80);
+  }
+
+  function closeMenu() {
+    if (!menuOpen) return;
+    menuOpen = false;
+    menu.classList.remove('open');
+    overlay.classList.remove('visible');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open navigation menu');
+    document.body.classList.remove('menu-open');
+    toggle.focus();
+  }
+
+  toggle  && toggle.addEventListener('click', e => { e.stopPropagation(); menuOpen ? closeMenu() : openMenu(); });
+  closeBtn && closeBtn.addEventListener('click', closeMenu);
+  overlay && overlay.addEventListener('click', closeMenu);
+
+  /* ═══════════════════════════════════════════════════════════
+     DROPDOWNS — desktop hover (via CSS .no-touch) + click toggle
+  ═══════════════════════════════════════════════════════════ */
+  function closeAllDropdowns(except = null) {
+    $$('.nav-item.has-dropdown.open').forEach(item => {
+      if (item === except) return;
+      item.classList.remove('open');
+      const t = $('.dropdown-toggle', item);
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function closeAllSubmenus(except = null) {
+    $$('.has-sub.open').forEach(item => {
+      if (item === except) return;
+      item.classList.remove('open');
+      const t = $('.submenu-toggle', item);
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  /* Main dropdown toggles */
+  $$('.dropdown-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const item = btn.closest('.nav-item');
+      const isOpen = item.classList.contains('open');
+
+      if (isMobile()) {
+        // On mobile, accordion: close siblings
+        closeAllDropdowns(isOpen ? null : item);
+        closeAllSubmenus();
+      } else {
+        // On desktop, toggle clicked item
+        closeAllDropdowns(item);
+      }
+
+      if (isOpen) {
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  /* Submenu toggles */
+  $$('.submenu-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const item = btn.closest('.has-sub');
+      const isOpen = item.classList.contains('open');
+
+      closeAllSubmenus(isOpen ? null : item);
+
+      if (isOpen) {
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  /* Close on outside click (desktop) */
+  document.addEventListener('click', e => {
+    if (!navbar.contains(e.target)) {
+      closeAllDropdowns();
+      closeAllSubmenus();
+      if (isMobile()) closeMenu();
+    }
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     SCROLL — scrolled class on navbar
+  ═══════════════════════════════════════════════════════════ */
+  function handleScroll() {
+    const y = window.scrollY;
+    if (y > 40 && !scrolled) {
+      navbar.classList.add('scrolled');
+      scrolled = true;
+    } else if (y <= 40 && scrolled) {
+      navbar.classList.remove('scrolled');
+      scrolled = false;
+    }
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  /* ═══════════════════════════════════════════════════════════
+     RESIZE — close mobile menu when switching to desktop
+  ═══════════════════════════════════════════════════════════ */
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (!isMobile()) {
+        closeMenu();
+        closeAllDropdowns();
+        closeAllSubmenus();
+      }
+    }, 200);
+  });
+
+  /* ═══════════════════════════════════════════════════════════
+     KEYBOARD NAVIGATION
+  ═══════════════════════════════════════════════════════════ */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (menuOpen) { closeMenu(); return; }
+      closeAllDropdowns();
+      closeAllSubmenus();
+    }
+  });
+
+  /* Arrow keys within dropdowns */
+  $$('.dropdown-menu, .submenu').forEach(menu => {
+    const items = $$('.dropdown-item, .submenu-item, .submenu-toggle', menu);
+    items.forEach((item, i) => {
+      item.addEventListener('keydown', e => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items[(i + 1) % items.length].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(i - 1 + items.length) % items.length].focus();
+        }
+      });
+    });
+  });
+
+  /* Arrow-down / Enter on dropdown toggle opens and focuses first item */
+  $$('.dropdown-toggle').forEach(btn => {
+    btn.addEventListener('keydown', e => {
+      if (['ArrowDown', 'Enter', ' '].includes(e.key)) {
+        const item = btn.closest('.nav-item');
+        if (!item.classList.contains('open')) {
+          e.preventDefault();
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          setTimeout(() => {
+            const first = $('.dropdown-item, .submenu-toggle', item);
+            if (first) first.focus();
+          }, 50);
+        }
+      }
+    });
+  });
+
+  /* Focus trap inside mobile menu */
+  menu && menu.addEventListener('keydown', e => {
+    if (e.key !== 'Tab' || !menuOpen) return;
+    const focusable = $$('a[href], button:not([disabled])', menu).filter(
+      el => el.offsetParent !== null
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last  = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
