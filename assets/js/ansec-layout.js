@@ -31,9 +31,9 @@
   ═══════════════════════════════════════════════════════════ */
   const CONFIG = {
     useInlineComponents: false,          // false = fetch files; true = use inline strings
-    headerPath: '/assets/components/ansec-header-component.html',
-    footerPath: '/assets/components/ansec-footer-component.html',
-    cssPath:    '/assets/css/ansec-layout.css',
+    headerPath: './assets/components/ansec-header-component.html',
+    footerPath: './assets/components/ansec-footer-component.html',
+    cssPath:    './assets/css/ansec-layout.css',
     headerMountId: 'ansec-header',
     footerMountId: 'ansec-footer',
   };
