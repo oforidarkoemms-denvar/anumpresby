@@ -158,15 +158,15 @@
 .navbar-toggle[aria-expanded="true"] .hb span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
 /* ── MOBILE OVERLAY ── */
-.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(6,15,30,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:var(--z-overlay);opacity:0;transition:opacity var(--tr-slow)}
-.mobile-overlay.visible{opacity:1}
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(6,15,30,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:var(--z-overlay);opacity:0;pointer-events:none;transition:opacity var(--tr-slow)}
+.mobile-overlay.visible{opacity:1;pointer-events:auto}
 
 /* ── MOBILE MENU PANEL ── */
 @media(max-width:992px){
   .navbar-toggle{display:flex}
   .navbar-menu{position:fixed;top:0;right:0;width:min(320px,88vw);height:100dvh;background:var(--bg-white);z-index:var(--z-mobilemenu);display:flex;flex-direction:column;transform:translateX(110%);transition:transform var(--tr-slow);overflow-y:auto;overscroll-behavior:contain;box-shadow:-6px 0 32px var(--shadow-heavy);margin-left:0;padding-top:calc(var(--topbar-height) + .8rem)}
   .navbar-menu.open{transform:translateX(0)}
-  .mobile-overlay{display:block}
+  .mobile-overlay{display:block;pointer-events:none}
   .navbar-nav{flex-direction:column;align-items:stretch;gap:0;padding:1rem}
   .nav-link{padding:.85rem 1rem;border-radius:8px}
   .dropdown-menu{position:static;opacity:1;visibility:visible;transform:none;box-shadow:none;border:none;background:var(--neutral-50);border-radius:8px;padding:.3rem .3rem .3rem 1.5rem;margin-top:.2rem;display:none;pointer-events:auto}
@@ -480,7 +480,7 @@ body.menu-open{overflow:hidden}
       document.body.classList.add('menu-open');
       setTimeout(() => { closeBtn && closeBtn.focus(); }, 80);
     }
-    function closeMenu() {
+    function closeMenu(returnFocus = false) {
       if (!menuOpen) return;
       menuOpen = false;
       menu.classList.remove('open');
@@ -488,12 +488,12 @@ body.menu-open{overflow:hidden}
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', 'Open navigation menu');
       document.body.classList.remove('menu-open');
-      toggle.focus();
+      if (returnFocus) toggle.focus();
     }
 
-    toggle   && toggle.addEventListener('click',   e => { e.stopPropagation(); menuOpen ? closeMenu() : openMenu(); });
-    closeBtn && closeBtn.addEventListener('click',  closeMenu);
-    overlay  && overlay.addEventListener('click',   closeMenu);
+    toggle   && toggle.addEventListener('click',   e => { e.stopPropagation(); menuOpen ? closeMenu(true) : openMenu(); });
+    closeBtn && closeBtn.addEventListener('click',  () => closeMenu(true));
+    overlay  && overlay.addEventListener('click',   () => closeMenu(false));
 
     /* ── Dropdowns ── */
     function closeAllDropdowns() {
@@ -517,7 +517,8 @@ body.menu-open{overflow:hidden}
     document.addEventListener('click', e => {
       if (!navbar.contains(e.target)) {
         closeAllDropdowns();
-        if (mobile()) closeMenu();
+        // Only close the mobile menu on outside click — don't steal focus
+        if (mobile() && menuOpen) closeMenu();
       }
     });
 
@@ -537,7 +538,7 @@ body.menu-open{overflow:hidden}
 
     /* ── Keyboard ── */
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { if (menuOpen) { closeMenu(); return; } closeAllDropdowns(); }
+      if (e.key === 'Escape') { if (menuOpen) { closeMenu(true); return; } closeAllDropdowns(); }
     });
 
     // Arrow key navigation inside open dropdowns
