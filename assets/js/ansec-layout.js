@@ -1,218 +1,350 @@
 /**
- * ansec-layout.js
- * ──────────────────────────────────────────────────────────────
- * Injects the shared ANSEC header and footer, then wires all
- * navigation behaviour.
+ * ansec-layout.js  v2.0
+ * ─────────────────────────────────────────────────────────────────────────
+ * Injects the shared ANSEC header (topbar + navbar) and footer into every
+ * page, then wires up all navigation behaviour.
  *
- * All injected HTML uses  al-  prefixed classes so they never
- * clash with styles on individual pages.
+ * HOW TO USE — one line at the very end of <body>:
  *
- * USAGE — add to every page:
+ *   <script src="/assets/js/ansec-layout.js"></script>
  *
- *   <div id="ansec-header"></div>        ← top of <body>
- *   ...page content...
- *   <div id="ansec-footer"></div>        ← bottom of <body>
- *   <script src="/assets/js/ansec-layout.js" defer></script>
+ * The script:
+ *   • Injects its own <style> tag — no external CSS file needed
+ *   • Embeds header + footer HTML inline — no fetch(), no server needed
+ *   • Works on file://, Live Server, Netlify, GitHub Pages, everywhere
+ *   • Auto-detects the current page and highlights the right nav item
  *
- * FILE STRUCTURE:
- *   /assets/js/ansec-layout.js
- *   /assets/css/ansec-layout.css
- *   /assets/components/ansec-header-component.html
- *   /assets/components/ansec-footer-component.html
- * ──────────────────────────────────────────────────────────────
+ * FOLDER STRUCTURE:
+ *   /index.html
+ *   /pages/ansec-*.html
+ *   /assets/js/ansec-layout.js   ← this file
+ *   /assets/images/anseclogo.jpg
+ *
+ * MOUNT POINTS (optional — auto-prepends/appends to <body> if absent):
+ *   <div id="ansec-header"></div>  ← place at top of <body>
+ *   <div id="ansec-footer"></div>  ← place at bottom of <body>
+ * ─────────────────────────────────────────────────────────────────────────
  */
 
 (function () {
   'use strict';
 
-
-  /* ═══════════════════════════════════════════════════════════
-     CONFIGURATION
-  ═══════════════════════════════════════════════════════════ */
-  const CONFIG = {
-    useInlineComponents: false,          // false = fetch files; true = use inline strings
-    headerPath: './assets/components/ansec-header-component.html',
-    footerPath: './assets/components/ansec-footer-component.html',
-    cssPath:    './assets/css/ansec-layout.css',
-    headerMountId: 'ansec-header',
-    footerMountId: 'ansec-footer',
-  };
-
-
   /* ═══════════════════════════════════════════════════════════
      ACTIVE-PAGE MAP
-     Maps URL path → data-section value on the matching al-ni.
+     Maps URL path fragments → data-section values on <li>
   ═══════════════════════════════════════════════════════════ */
   const ACTIVE_MAP = {
-    '/pages/ansec-history.html':               'our-school',
-    '/pages/ansec-mission-vision-values.html': 'our-school',
-    '/pages/ansec-admin-staff.html':           'our-school',
-    '/pages/ansec-campus-facilities.html':     'our-school',
-    '/pages/ansec-anthem-motto.html':          'our-school',
-    '/pages/ansec-programmes.html':            'academic-life',
-    '/pages/ansec-departments.html':           'academic-life',
-    '/pages/ansec-academic-calendar.html':     'academic-life',
-    '/pages/ansec-chaplaincy.html':            'student-life',
-    '/pages/ansec-clubs.html':                 'student-life',
-    '/pages/ansec-sports.html':                'student-life',
-    '/pages/ansec-boarding.html':              'student-life',
-    '/pages/ansec-events.html':                'events',
-    '/pages/ansec-gallery.html':               'gallery',
-    '/pages/ansec-contact.html':               'contact',
+    'ansec-history':               'our-school',
+    'ansec-mission-vision-values': 'our-school',
+    'ansec-admin-staff':           'our-school',
+    'ansec-campus-facilities':     'our-school',
+    'ansec-anthem-motto':          'our-school',
+    'ansec-programmes':            'academic-life',
+    'ansec-departments':           'academic-life',
+    'ansec-academic-calendar':     'academic-life',
+    'ansec-chaplaincy':            'student-life',
+    'ansec-clubs':                 'student-life',
+    'ansec-sports':                'student-life',
+    'ansec-boarding':              'student-life',
+    'ansec-events':                'events',
+    'ansec-gallery':               'gallery',
+    'ansec-contact':               'contact',
+    'ansec-donate':                '',
+    'ansec-alumni':                '',
   };
 
+  /* ═══════════════════════════════════════════════════════════
+     INLINE CSS
+     Injected as a <style> tag — no external file, no path issues.
+  ═══════════════════════════════════════════════════════════ */
+  const LAYOUT_CSS = `
+/* ── ANSEC Layout — injected by ansec-layout.js ── */
+:root {
+  --accent:         #0071e3;
+  --accent-soft:    rgba(0,113,227,.08);
+  --accent-mid:     rgba(0,113,227,.18);
+  --grad-btn:       linear-gradient(to right,#00b4ff,#6a00ff);
+  --navy-900:       #0a1929;
+  --navy-800:       #0f2744;
+  --navy-700:       #1a3a5c;
+  --navy-600:       #2d5278;
+  --gold-600:       #b8941f;
+  --gold-500:       #d4af37;
+  --gold-400:       #ddc356;
+  --presby-red:     #8b0000;
+  --presby-red-h:   #a50000;
+  --presby-red-glow:rgba(139,0,0,.28);
+  --bg-page:        #f5f7fa;
+  --bg-white:       #ffffff;
+  --bg-dark:        #060f1e;
+  --bg-darkblue:    #071428;
+  --text-primary:   #0d1b2a;
+  --text-body:      #3a4a5c;
+  --text-muted:     #7a8fa6;
+  --neutral-50:     #fafafa;
+  --neutral-100:    #f5f5f5;
+  --neutral-200:    #e5e5e5;
+  --neutral-300:    #d4d4d4;
+  --neutral-500:    #737373;
+  --neutral-700:    #404040;
+  --serif:          'Playfair Display',Georgia,serif;
+  --lora:           'Lora',Georgia,serif;
+  --sans:           'DM Sans',system-ui,sans-serif;
+  --topbar-height:  56px;
+  --navbar-height:  64px;
+  --header-total:   calc(56px + 64px);
+  --container-pad:  1.5rem;
+  --tr:             .28s cubic-bezier(.22,1,.36,1);
+  --tr-slow:        .45s cubic-bezier(.22,1,.36,1);
+  --shadow-light:   rgba(10,25,41,.07);
+  --shadow-medium:  rgba(10,25,41,.14);
+  --shadow-heavy:   rgba(10,25,41,.25);
+  --z-topbar:       1000;
+  --z-navbar:       999;
+  --z-dropdown:     998;
+  --z-overlay:      997;
+  --z-mobilemenu:   1001;
+}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;width:100%;height:var(--topbar-height);background:linear-gradient(135deg,var(--navy-800),var(--navy-900));z-index:var(--z-topbar);border-bottom:1px solid rgba(255,255,255,.06)}
+.topbar-inner{max-width:1400px;margin-inline:auto;padding-inline:var(--container-pad);height:100%;display:flex;align-items:center;justify-content:space-between}
+.school-brand{display:flex;align-items:center;gap:.8rem;text-decoration:none}
+.school-logo{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-500);box-shadow:0 0 0 3px rgba(212,175,55,.18);flex-shrink:0}
+.school-name{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:.03em;line-height:1.2}
+.school-name .sub-name{display:block;font-family:var(--sans);font-size:.58rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:1px}
+.topbar-actions{display:flex;align-items:center;gap:.6rem}
+.alumni-link{display:flex;align-items:center;gap:.45rem;color:rgba(220,232,248,.8);font-family:var(--sans);font-size:.875rem;font-weight:500;padding:.44rem .85rem;border-radius:6px;text-decoration:none;transition:color var(--tr),background var(--tr)}
+.alumni-link i{font-size:1.05rem}
+.alumni-link:hover{color:var(--gold-400);background:rgba(255,255,255,.07)}
+.donate-btn{display:inline-flex;align-items:center;gap:.45rem;background:var(--presby-red);color:#fff;font-family:var(--sans);font-size:.875rem;font-weight:600;padding:.52rem 1.15rem;border-radius:6px;box-shadow:0 2px 10px var(--presby-red-glow);text-decoration:none;transition:background var(--tr),transform var(--tr),box-shadow var(--tr);position:relative;overflow:hidden}
+.donate-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.10),transparent);border-radius:inherit}
+.donate-btn i{font-size:1rem}
+.donate-btn:hover{background:var(--presby-red-h);transform:translateY(-1px);box-shadow:0 5px 18px var(--presby-red-glow)}
+.donate-btn:active{transform:translateY(0)}
+@media(max-width:679px){.tb-text{display:none}}
+
+/* ── NAVBAR ── */
+.navbar{position:fixed;top:var(--topbar-height);left:0;width:100%;height:var(--navbar-height);background:var(--bg-white);border-bottom:1px solid rgba(0,0,0,.07);box-shadow:0 1px 4px var(--shadow-light);z-index:var(--z-navbar);transition:box-shadow var(--tr),background var(--tr)}
+.navbar.scrolled{background:rgba(255,255,255,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 4px 20px var(--shadow-medium)}
+.navbar-inner{max-width:1400px;margin-inline:auto;padding-inline:var(--container-pad);height:100%;display:flex;align-items:center;gap:1rem}
+.nav-logo{font-family:var(--serif);font-size:1.55rem;font-weight:700;color:var(--navy-800);letter-spacing:.08em;white-space:nowrap;flex-shrink:0;text-decoration:none;transition:color var(--tr)}
+.nav-logo em{font-style:normal;color:var(--presby-red)}
+.nav-logo:hover{color:var(--gold-600)}
+.navbar-menu{display:flex;align-items:center;margin-left:auto}
+.navbar-nav{display:flex;align-items:center;gap:.15rem;list-style:none;padding:0;margin:0}
+.nav-item{position:relative}
+.nav-link{display:flex;align-items:center;gap:.4rem;padding:.62rem 1rem;border-radius:7px;font-family:var(--sans);font-size:.9rem;font-weight:500;color:var(--text-body);white-space:nowrap;text-decoration:none;background:none;border:none;cursor:pointer;transition:color var(--tr),background var(--tr)}
+.nav-link i{font-size:1.05rem;flex-shrink:0}
+.nav-link:hover{color:var(--navy-800);background:var(--neutral-100)}
+.nav-item.is-active>.nav-link,.nav-item.is-active>.dropdown-toggle{color:var(--accent);background:var(--accent-soft)}
+.dropdown-caret{font-size:1.1rem;margin-left:.1rem;transition:transform var(--tr);flex-shrink:0}
+.nav-item.open>.dropdown-toggle .dropdown-caret{transform:rotate(180deg)}
+.dropdown-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:248px;background:var(--bg-white);border:1px solid rgba(0,0,0,.06);border-radius:10px;padding:.45rem;box-shadow:0 8px 28px var(--shadow-medium),0 2px 8px var(--shadow-light);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity var(--tr),transform var(--tr),visibility var(--tr);z-index:var(--z-dropdown);pointer-events:none;list-style:none;margin:0}
+.nav-item.open .dropdown-menu,.no-touch .nav-item:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+.dropdown-item{display:flex;align-items:center;gap:.75rem;padding:.68rem .9rem;border-radius:6px;font-family:var(--sans);font-size:.875rem;font-weight:400;color:var(--text-body);width:100%;text-align:left;text-decoration:none;background:none;border:none;cursor:pointer;transition:color var(--tr),background var(--tr),padding-left var(--tr)}
+.dropdown-item i{font-size:1.05rem;color:var(--neutral-500);flex-shrink:0;transition:color var(--tr)}
+.dropdown-item:hover{background:var(--neutral-100);color:var(--navy-800);padding-left:1.1rem}
+.dropdown-item:hover i{color:var(--accent)}
+
+/* ── HAMBURGER ── */
+.navbar-toggle{display:none;width:44px;height:44px;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0;margin-left:auto;background:none;border:none;cursor:pointer;transition:background var(--tr);position:relative;z-index:var(--z-mobilemenu)}
+.navbar-toggle:hover{background:var(--neutral-100)}
+.hb{width:22px;display:flex;flex-direction:column;gap:5px}
+.hb span{display:block;height:2px;border-radius:2px;background:var(--navy-800);transition:transform var(--tr),opacity var(--tr),width var(--tr);transform-origin:center}
+.hb span:nth-child(2){width:75%;align-self:flex-end}
+.navbar-toggle[aria-expanded="true"] .hb span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.navbar-toggle[aria-expanded="true"] .hb span:nth-child(2){opacity:0;transform:scaleX(0)}
+.navbar-toggle[aria-expanded="true"] .hb span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ── MOBILE OVERLAY ── */
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(6,15,30,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:var(--z-overlay);opacity:0;transition:opacity var(--tr-slow)}
+.mobile-overlay.visible{opacity:1}
+
+/* ── MOBILE MENU PANEL ── */
+@media(max-width:992px){
+  .navbar-toggle{display:flex}
+  .navbar-menu{position:fixed;top:0;right:0;width:min(320px,88vw);height:100dvh;background:var(--bg-white);z-index:var(--z-mobilemenu);display:flex;flex-direction:column;transform:translateX(110%);transition:transform var(--tr-slow);overflow-y:auto;overscroll-behavior:contain;box-shadow:-6px 0 32px var(--shadow-heavy);margin-left:0;padding-top:calc(var(--topbar-height) + .8rem)}
+  .navbar-menu.open{transform:translateX(0)}
+  .mobile-overlay{display:block}
+  .navbar-nav{flex-direction:column;align-items:stretch;gap:0;padding:1rem}
+  .nav-link{padding:.85rem 1rem;border-radius:8px}
+  .dropdown-menu{position:static;opacity:1;visibility:visible;transform:none;box-shadow:none;border:none;background:var(--neutral-50);border-radius:8px;padding:.3rem .3rem .3rem 1.5rem;margin-top:.2rem;display:none;pointer-events:auto}
+  .nav-item.open .dropdown-menu{display:block}
+  .mobile-menu-header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:1px solid var(--neutral-200);flex-shrink:0}
+  .mobile-menu-label{font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--text-primary)}
+  .mobile-close-btn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-body);transition:background var(--tr)}
+  .mobile-close-btn:hover{background:var(--neutral-100)}
+  .mobile-footer{margin-top:auto;padding:1.5rem;border-top:1px solid var(--neutral-200);display:flex;flex-direction:column;gap:.7rem;flex-shrink:0}
+  .mobile-footer .donate-btn,.mobile-footer .alumni-link{justify-content:center;width:100%;padding:.72rem 1rem}
+}
+@media(min-width:993px){.mobile-menu-header,.mobile-footer{display:none}}
+
+/* ── FOOTER ── */
+.contact-strip{background:var(--navy-900);border-top:1px solid rgba(255,255,255,.06);padding-block:3rem}
+.contact-strip .wrap{max-width:1400px;padding-inline:var(--container-pad);margin-inline:auto}
+.cs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+@media(max-width:700px){.cs-grid{grid-template-columns:1fr}}
+.cs-col{display:flex;flex-direction:column;gap:.5rem}
+.cs-col-h{display:flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,180,255,.6);margin-bottom:.3rem}
+.cs-col-h i{font-size:.9rem}
+.cs-col-v{font-family:var(--sans);font-size:.88rem;font-weight:500;color:rgba(220,235,255,.75)}
+.cs-col-s{font-family:var(--sans);font-size:.77rem;font-weight:300;color:rgba(140,175,220,.45)}
+.cs-divider{height:1px;background:rgba(255,255,255,.06);margin-top:2rem}
+.cs-footer-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-top:1.5rem}
+.cs-copy{font-family:var(--sans);font-size:.72rem;color:rgba(140,175,220,.4)}
+.cs-links{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.cs-link{font-family:var(--sans);font-size:.72rem;color:rgba(140,175,220,.5);text-decoration:none;transition:color var(--tr)}
+.cs-link:hover{color:rgba(0,180,255,.75)}
+
+/* ── UTILITY ── */
+body.menu-open{overflow:hidden}
+`;
 
   /* ═══════════════════════════════════════════════════════════
-     INLINE HEADER
-     Keep in sync with: /assets/components/ansec-header-component.html
+     INLINE HEADER HTML
   ═══════════════════════════════════════════════════════════ */
   const INLINE_HEADER = `
-<div class="al-topbar" id="al-topbar" role="banner">
-  <div class="al-topbar-inner">
-    <a href="/index.html" class="al-brand" aria-label="Anum Presbyterian SHS home">
-      <img src="/assets/images/anseclogo.jpg" alt="ANSEC Logo" class="al-logo"
-           width="40" height="40" loading="eager" onerror="this.style.display='none'"/>
-      <span class="al-school-name">Anum Presby SHS<span class="al-sub">Est. 1937 &middot; Anum, Ghana</span></span>
+<div class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <a href="/index.html" class="school-brand">
+      <img src="/assets/images/anseclogo.jpg" alt="ANSEC Logo" class="school-logo"
+           width="40" height="40" onerror="this.style.display='none'"/>
+      <span class="school-name">
+        Anum Presby SHS
+        <span class="sub-name">Est. 1937 &middot; Anum, Ghana</span>
+      </span>
     </a>
-    <div class="al-topbar-actions">
-      <a href="/pages/ansec-alumni.html" class="al-alumni" aria-label="Alumni Portal">
-        <i class="ri-user-star-line" aria-hidden="true"></i><span class="al-tb-text">Alumni</span>
+    <div class="topbar-actions">
+      <a href="/pages/ansec-alumni.html" class="alumni-link">
+        <i class="ri-user-star-line" aria-hidden="true"></i>
+        <span class="tb-text">Alumni</span>
       </a>
-      <span class="al-sep" aria-hidden="true"></span>
-      <a href="/pages/ansec-donate.html" class="al-donate" aria-label="Make a donation to ANSEC">
-        <i class="ri-heart-3-fill" aria-hidden="true"></i><span class="al-tb-text">Donate</span>
+      <a href="/pages/ansec-donate.html" class="donate-btn">
+        <i class="ri-heart-3-fill" aria-hidden="true"></i>
+        <span class="tb-text">Donate</span>
       </a>
     </div>
   </div>
 </div>
-<nav class="al-navbar" id="al-navbar" role="navigation" aria-label="Main navigation">
-  <div class="al-navbar-inner">
-    <a href="/pages/ansec-index.html" class="al-wordmark" aria-label="ANSEC home">AN<em>SEC</em></a>
-    <button class="al-burger" id="al-burger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="al-menu">
-      <span class="al-hb" aria-hidden="true"><span></span><span></span><span></span></span>
+
+<nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+    <a href="/index.html" class="nav-logo" aria-label="ANSEC home">AN<em>SEC</em></a>
+
+    <button class="navbar-toggle" id="navToggle"
+            aria-label="Open navigation menu" aria-expanded="false" aria-controls="navMenu">
+      <span class="hb" aria-hidden="true"><span></span><span></span><span></span></span>
     </button>
-    <ul class="al-nav-list" role="menubar">
-      <li class="al-ni" role="none" data-section="our-school" data-drop>
-        <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem">
-          <i class="ri-information-line" aria-hidden="true"></i><span>Our School</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i>
+
+    <div class="navbar-menu" id="navMenu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+      <div class="mobile-menu-header">
+        <span class="mobile-menu-label">Navigation</span>
+        <button class="mobile-close-btn" id="navClose" aria-label="Close menu">
+          <i class="ri-close-line" aria-hidden="true"></i>
         </button>
-        <ul class="al-drop" role="menu">
-          <li role="none"><a href="/pages/ansec-history.html" class="al-di" role="menuitem"><i class="ri-time-line"></i><span>Our History</span></a></li>
-          <li role="none"><a href="/pages/ansec-mission-vision-values.html" class="al-di" role="menuitem"><i class="ri-eye-line"></i><span>Mission, Vision &amp; Values</span></a></li>
-          <li role="none"><a href="/pages/ansec-admin-staff.html" class="al-di" role="menuitem"><i class="ri-user-star-line"></i><span>Administration &amp; Staff</span></a></li>
-          <li role="none"><a href="/pages/ansec-campus-facilities.html" class="al-di" role="menuitem"><i class="ri-school-line"></i><span>Campus &amp; Facilities</span></a></li>
-          <li role="none"><a href="/pages/ansec-anthem-motto.html" class="al-di" role="menuitem"><i class="ri-music-2-line"></i><span>School Anthem &amp; Motto</span></a></li>
-        </ul>
-      </li>
-      <li class="al-ni" role="none" data-section="academic-life" data-drop>
-        <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem">
-          <i class="ri-book-open-line" aria-hidden="true"></i><span>Academic Life</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i>
-        </button>
-        <ul class="al-drop" role="menu">
-          <li role="none"><a href="/pages/ansec-programmes.html" class="al-di" role="menuitem"><i class="ri-graduation-cap-line"></i><span>Programmes Offered</span></a></li>
-          <li role="none"><a href="/pages/ansec-departments.html" class="al-di" role="menuitem"><i class="ri-building-4-line"></i><span>Academic Departments</span></a></li>
-          <li role="none"><a href="/pages/ansec-academic-calendar.html" class="al-di" role="menuitem"><i class="ri-calendar-2-line"></i><span>Academic Calendar</span></a></li>
-        </ul>
-      </li>
-      <li class="al-ni" role="none" data-section="student-life" data-drop>
-        <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem">
-          <i class="ri-user-smile-line" aria-hidden="true"></i><span>Faith &amp; Student Life</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i>
-        </button>
-        <ul class="al-drop" role="menu">
-          <li role="none"><a href="/pages/ansec-chaplaincy.html" class="al-di" role="menuitem"><i class="ri-cross-line"></i><span>Chaplaincy &amp; Worship</span></a></li>
-          <li role="none"><a href="/pages/ansec-clubs.html" class="al-di" role="menuitem"><i class="ri-group-line"></i><span>Clubs &amp; Activities</span></a></li>
-          <li role="none"><a href="/pages/ansec-sports.html" class="al-di" role="menuitem"><i class="ri-football-line"></i><span>Sports &amp; Athletics</span></a></li>
-          <li role="none"><a href="/pages/ansec-boarding.html" class="al-di" role="menuitem"><i class="ri-home-heart-line"></i><span>Boarding &amp; Pastoral Care</span></a></li>
-        </ul>
-      </li>
-      <li class="al-ni" role="none" data-section="events">
-        <a href="/pages/ansec-events.html" class="al-nl" role="menuitem"><i class="ri-calendar-event-line" aria-hidden="true"></i><span>Events</span></a>
-      </li>
-      <li class="al-ni" role="none" data-section="gallery">
-        <a href="/pages/ansec-gallery.html" class="al-nl" role="menuitem"><i class="ri-camera-line" aria-hidden="true"></i><span>Gallery</span></a>
-      </li>
-      <li class="al-ni" role="none" data-section="contact">
-        <a href="/pages/ansec-contact.html" class="al-nl" role="menuitem"><i class="ri-map-pin-line" aria-hidden="true"></i><span>Contact &amp; Location</span></a>
-      </li>
-    </ul>
-    <div class="al-menu" id="al-menu" role="dialog" aria-modal="true" aria-label="Navigation menu">
-      <div class="al-panel-head">
-        <span class="al-panel-label">Navigation</span>
-        <button class="al-panel-close" id="al-close" aria-label="Close navigation menu"><i class="ri-close-line" aria-hidden="true"></i></button>
       </div>
-      <ul class="al-mob-nav" role="menubar">
-        <li class="al-ni" role="none" data-section="our-school" data-drop>
-          <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem"><i class="ri-information-line" aria-hidden="true"></i><span>Our School</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i></button>
-          <ul class="al-mob-drop" role="menu">
-            <li><a href="/pages/ansec-history.html" class="al-mob-di"><i class="ri-time-line"></i>Our History</a></li>
-            <li><a href="/pages/ansec-mission-vision-values.html" class="al-mob-di"><i class="ri-eye-line"></i>Mission, Vision &amp; Values</a></li>
-            <li><a href="/pages/ansec-admin-staff.html" class="al-mob-di"><i class="ri-user-star-line"></i>Administration &amp; Staff</a></li>
-            <li><a href="/pages/ansec-campus-facilities.html" class="al-mob-di"><i class="ri-school-line"></i>Campus &amp; Facilities</a></li>
-            <li><a href="/pages/ansec-anthem-motto.html" class="al-mob-di"><i class="ri-music-2-line"></i>School Anthem &amp; Motto</a></li>
+
+      <ul class="navbar-nav" role="menubar">
+
+        <li class="nav-item has-dropdown" role="none" data-section="our-school">
+          <button class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" role="menuitem">
+            <i class="ri-information-line" aria-hidden="true"></i><span>Our School</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/pages/ansec-history.html" class="dropdown-item" role="menuitem"><i class="ri-time-line"></i>Our History</a></li>
+            <li><a href="/pages/ansec-mission-vision-values.html" class="dropdown-item" role="menuitem"><i class="ri-eye-line"></i>Mission, Vision &amp; Values</a></li>
+            <li><a href="/pages/ansec-admin-staff.html" class="dropdown-item" role="menuitem"><i class="ri-user-star-line"></i>Administration &amp; Staff</a></li>
+            <li><a href="/pages/ansec-campus-facilities.html" class="dropdown-item" role="menuitem"><i class="ri-school-line"></i>Campus &amp; Facilities</a></li>
+            <li><a href="/pages/ansec-anthem-motto.html" class="dropdown-item" role="menuitem"><i class="ri-music-2-line"></i>School Anthem &amp; Motto</a></li>
           </ul>
         </li>
-        <li class="al-ni" role="none" data-section="academic-life" data-drop>
-          <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem"><i class="ri-book-open-line" aria-hidden="true"></i><span>Academic Life</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i></button>
-          <ul class="al-mob-drop" role="menu">
-            <li><a href="/pages/ansec-programmes.html" class="al-mob-di"><i class="ri-graduation-cap-line"></i>Programmes Offered</a></li>
-            <li><a href="/pages/ansec-departments.html" class="al-mob-di"><i class="ri-building-4-line"></i>Academic Departments</a></li>
-            <li><a href="/pages/ansec-academic-calendar.html" class="al-mob-di"><i class="ri-calendar-2-line"></i>Academic Calendar</a></li>
+
+        <li class="nav-item has-dropdown" role="none" data-section="academic-life">
+          <button class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" role="menuitem">
+            <i class="ri-book-open-line" aria-hidden="true"></i><span>Academic Life</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/pages/ansec-programmes.html" class="dropdown-item" role="menuitem"><i class="ri-graduation-cap-line"></i>Programmes Offered</a></li>
+            <li><a href="/pages/ansec-departments.html" class="dropdown-item" role="menuitem"><i class="ri-building-4-line"></i>Academic Departments</a></li>
+            <li><a href="/pages/ansec-academic-calendar.html" class="dropdown-item" role="menuitem"><i class="ri-calendar-2-line"></i>Academic Calendar</a></li>
           </ul>
         </li>
-        <li class="al-ni" role="none" data-section="student-life" data-drop>
-          <button class="al-nl" aria-haspopup="true" aria-expanded="false" role="menuitem"><i class="ri-user-smile-line" aria-hidden="true"></i><span>Faith &amp; Student Life</span><i class="ri-arrow-down-s-line al-caret" aria-hidden="true"></i></button>
-          <ul class="al-mob-drop" role="menu">
-            <li><a href="/pages/ansec-chaplaincy.html" class="al-mob-di"><i class="ri-cross-line"></i>Chaplaincy &amp; Worship</a></li>
-            <li><a href="/pages/ansec-clubs.html" class="al-mob-di"><i class="ri-group-line"></i>Clubs &amp; Activities</a></li>
-            <li><a href="/pages/ansec-sports.html" class="al-mob-di"><i class="ri-football-line"></i>Sports &amp; Athletics</a></li>
-            <li><a href="/pages/ansec-boarding.html" class="al-mob-di"><i class="ri-home-heart-line"></i>Boarding &amp; Pastoral Care</a></li>
+
+        <li class="nav-item has-dropdown" role="none" data-section="student-life">
+          <button class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" role="menuitem">
+            <i class="ri-user-smile-line" aria-hidden="true"></i><span>Faith &amp; Student Life</span>
+            <i class="ri-arrow-down-s-line dropdown-caret" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="/pages/ansec-chaplaincy.html" class="dropdown-item" role="menuitem"><i class="ri-cross-line"></i>Chaplaincy &amp; Worship</a></li>
+            <li><a href="/pages/ansec-clubs.html" class="dropdown-item" role="menuitem"><i class="ri-group-line"></i>Clubs &amp; Activities</a></li>
+            <li><a href="/pages/ansec-sports.html" class="dropdown-item" role="menuitem"><i class="ri-football-line"></i>Sports &amp; Athletics</a></li>
+            <li><a href="/pages/ansec-boarding.html" class="dropdown-item" role="menuitem"><i class="ri-home-heart-line"></i>Boarding &amp; Pastoral Care</a></li>
           </ul>
         </li>
-        <li class="al-ni" role="none" data-section="events"><a href="/pages/ansec-events.html" class="al-nl"><i class="ri-calendar-event-line"></i><span>Events</span></a></li>
-        <li class="al-ni" role="none" data-section="gallery"><a href="/pages/ansec-gallery.html" class="al-nl"><i class="ri-camera-line"></i><span>Gallery</span></a></li>
-        <li class="al-ni" role="none" data-section="contact"><a href="/pages/ansec-contact.html" class="al-nl"><i class="ri-map-pin-line"></i><span>Contact &amp; Location</span></a></li>
+
+        <li class="nav-item" role="none" data-section="events">
+          <a href="/pages/ansec-events.html" class="nav-link" role="menuitem">
+            <i class="ri-calendar-event-line" aria-hidden="true"></i><span>Events</span>
+          </a>
+        </li>
+
+        <li class="nav-item" role="none" data-section="gallery">
+          <a href="/pages/ansec-gallery.html" class="nav-link" role="menuitem">
+            <i class="ri-camera-line" aria-hidden="true"></i><span>Gallery</span>
+          </a>
+        </li>
+
+        <li class="nav-item" role="none" data-section="contact">
+          <a href="/pages/ansec-contact.html" class="nav-link" role="menuitem">
+            <i class="ri-map-pin-line" aria-hidden="true"></i><span>Contact &amp; Location</span>
+          </a>
+        </li>
+
       </ul>
-      <div class="al-panel-foot">
-        <a href="/pages/ansec-donate.html" class="al-pf-donate"><i class="ri-heart-3-fill" aria-hidden="true"></i>Donate to ANSEC</a>
-        <a href="/pages/ansec-alumni.html" class="al-pf-alumni"><i class="ri-user-star-line" aria-hidden="true"></i>Alumni Portal</a>
+
+      <div class="mobile-footer">
+        <a href="/pages/ansec-donate.html" class="donate-btn"><i class="ri-heart-3-fill"></i><span>Donate to ANSEC</span></a>
+        <a href="/pages/ansec-alumni.html" class="alumni-link"><i class="ri-user-star-line"></i><span>Alumni Portal</span></a>
       </div>
     </div>
   </div>
 </nav>
-<div class="al-overlay" id="al-overlay" aria-hidden="true"></div>
+<div class="mobile-overlay" id="navOverlay" aria-hidden="true"></div>
 `;
 
-
   /* ═══════════════════════════════════════════════════════════
-     INLINE FOOTER
-     Keep in sync with: /assets/components/ansec-footer-component.html
+     INLINE FOOTER HTML
   ═══════════════════════════════════════════════════════════ */
   const INLINE_FOOTER = `
-<footer id="contact" class="contact-strip" aria-label="Site footer">
+<footer id="ansec-footer-strip" class="contact-strip" aria-label="Site footer">
   <div class="wrap">
     <div class="cs-grid">
       <div class="cs-col">
-        <div class="cs-col-h"><i class="ri-map-pin-line" aria-hidden="true"></i> Location</div>
+        <div class="cs-col-h"><i class="ri-map-pin-line" aria-hidden="true"></i>Location</div>
         <div class="cs-col-v">Anum, Eastern Region</div>
         <div class="cs-col-s">Ghana, West Africa</div>
-        <div class="cs-col-s" style="margin-top:.4rem">Accessible via Accra-Kumasi Highway,<br/>exit at Anum Junction</div>
+        <div class="cs-col-s" style="margin-top:.4rem">Accessible via Accra&ndash;Kumasi Highway,<br>exit at Anum Junction</div>
       </div>
       <div class="cs-col">
-        <div class="cs-col-h"><i class="ri-phone-line" aria-hidden="true"></i> Contact</div>
+        <div class="cs-col-h"><i class="ri-phone-line" aria-hidden="true"></i>Contact</div>
         <div class="cs-col-v">+233 (0) XXX XXX XXXX</div>
         <div class="cs-col-s">admissions@ansec.edu.gh</div>
         <div class="cs-col-s">info@ansec.edu.gh</div>
         <div class="cs-col-v" style="margin-top:.65rem;font-size:.78rem">Mon &ndash; Fri &middot; 7:30 am &ndash; 4:30 pm</div>
       </div>
       <div class="cs-col">
-        <div class="cs-col-h"><i class="ri-links-line" aria-hidden="true"></i> Connect</div>
+        <div class="cs-col-h"><i class="ri-links-line" aria-hidden="true"></i>Connect</div>
         <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.2rem">
           <a href="#" class="cs-link" aria-label="Facebook"><i class="ri-facebook-circle-line" style="font-size:1.2rem;color:rgba(0,180,255,.55)"></i></a>
           <a href="#" class="cs-link" aria-label="Twitter / X"><i class="ri-twitter-x-line" style="font-size:1.2rem;color:rgba(0,180,255,.55)"></i></a>
           <a href="#" class="cs-link" aria-label="YouTube"><i class="ri-youtube-line" style="font-size:1.2rem;color:rgba(0,180,255,.55)"></i></a>
           <a href="#" class="cs-link" aria-label="Instagram"><i class="ri-instagram-line" style="font-size:1.2rem;color:rgba(0,180,255,.55)"></i></a>
         </div>
-        <a href="/pages/ansec-mission-vision-values.html" class="cs-link" style="margin-top:1rem;display:inline-flex;align-items:center;gap:.4rem">Mission &amp; Values <i class="ri-arrow-right-line" style="font-size:.8rem"></i></a><br/>
+        <a href="/pages/ansec-mission-vision-values.html" class="cs-link" style="margin-top:1rem;display:inline-flex;align-items:center;gap:.4rem">Mission &amp; Values <i class="ri-arrow-right-line" style="font-size:.8rem"></i></a><br>
         <a href="/pages/ansec-history.html" class="cs-link" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem">Our History <i class="ri-arrow-right-line" style="font-size:.8rem"></i></a>
       </div>
     </div>
@@ -230,65 +362,78 @@
 </footer>
 `;
 
-
   /* ═══════════════════════════════════════════════════════════
      INJECT CSS
+     Creates a single <style> tag in <head> — works everywhere.
   ═══════════════════════════════════════════════════════════ */
   function injectCSS() {
-    if (document.querySelector(`link[href="${CONFIG.cssPath}"]`)) return;
-    const link = document.createElement('link');
-    link.rel  = 'stylesheet';
-    link.href = CONFIG.cssPath;
-    document.head.appendChild(link);
+    if (document.getElementById('ansec-layout-css')) return;
+    const style = document.createElement('style');
+    style.id = 'ansec-layout-css';
+    style.textContent = LAYOUT_CSS;
+    document.head.insertBefore(style, document.head.firstChild);
   }
-
 
   /* ═══════════════════════════════════════════════════════════
-     MOUNT HELPERS
+     MOUNT HEADER + FOOTER
   ═══════════════════════════════════════════════════════════ */
-  function mountHeader(html) {
-    const mount = document.getElementById(CONFIG.headerMountId);
+  function mountHeader() {
+    // Skip if already present (page has own inline header)
+    if (document.getElementById('topbar')) return;
+
+    const mount = document.getElementById('ansec-header');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = INLINE_HEADER;
+
     if (mount) {
-      mount.innerHTML = html;
+      mount.replaceWith(...tmp.childNodes);
     } else {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      document.body.insertBefore(tmp, document.body.firstChild);
-    }
-  }
-
-  function mountFooter(html) {
-    const mount = document.getElementById(CONFIG.footerMountId);
-    if (mount) {
-      mount.innerHTML = html;
-    } else {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = html;
-      document.body.appendChild(tmp);
-    }
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════
-     ACTIVE NAV STATE
-  ═══════════════════════════════════════════════════════════ */
-  function setActiveNav() {
-    const path = window.location.pathname;
-    const section = ACTIVE_MAP[path];
-    if (section) {
-      document.querySelectorAll(`.al-ni[data-section="${section}"]`)
-        .forEach(li => li.classList.add('al-active'));
-      return;
-    }
-    for (const [key, val] of Object.entries(ACTIVE_MAP)) {
-      if (path.includes(key.replace('/pages/', '').replace('.html', ''))) {
-        document.querySelectorAll(`.al-ni[data-section="${val}"]`)
-          .forEach(li => li.classList.add('al-active'));
-        return;
+      // Prepend all nodes to body
+      while (tmp.firstChild) {
+        document.body.insertBefore(tmp.firstChild, document.body.firstChild);
       }
     }
   }
 
+  function mountFooter() {
+    // Skip if already present (page has own inline footer)
+    if (document.getElementById('ansec-footer-strip') ||
+        document.querySelector('.contact-strip')) return;
+
+    const mount = document.getElementById('ansec-footer');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = INLINE_FOOTER;
+
+    if (mount) {
+      mount.replaceWith(...tmp.childNodes);
+    } else {
+      while (tmp.firstChild) {
+        document.body.appendChild(tmp.firstChild);
+      }
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     ACTIVE NAV STATE
+     Reads the current URL and highlights the matching nav item.
+  ═══════════════════════════════════════════════════════════ */
+  function setActiveNav() {
+    const path = window.location.pathname;
+
+    // Match against slug keywords
+    let activeSection = null;
+    for (const [slug, section] of Object.entries(ACTIVE_MAP)) {
+      if (path.includes(slug)) {
+        activeSection = section;
+        break;
+      }
+    }
+
+    if (activeSection) {
+      const li = document.querySelector(`.nav-item[data-section="${activeSection}"]`);
+      if (li) li.classList.add('is-active');
+    }
+  }
 
   /* ═══════════════════════════════════════════════════════════
      AUTO YEAR
@@ -296,211 +441,153 @@
   function setYear() {
     const el = document.getElementById('ansec-year');
     if (el) el.textContent = new Date().getFullYear();
+    // Also update footerYear id used by some pages
+    const el2 = document.getElementById('footerYear');
+    if (el2) el2.textContent = new Date().getFullYear();
   }
 
-
   /* ═══════════════════════════════════════════════════════════
-     FIX PAGE-LEVEL NAV BARS
-     Removes constraining wrapper divs from the programmes and
-     departments sticky nav bars so they scroll horizontally on
-     mobile without being clipped by a max-width container.
-  ═══════════════════════════════════════════════════════════ */
-  function fixPageNavBars() {
-    /* Programmes page: .prog-nav-wrap > .wrap > nav.prog-nav
-       The inner .wrap clips overflow. Hoist nav out of it.     */
-    const progWrap = document.querySelector('.prog-nav-wrap');
-    if (progWrap) {
-      const inner = progWrap.querySelector('.wrap');
-      const nav   = progWrap.querySelector('.prog-nav');
-      if (inner && nav) {
-        progWrap.appendChild(nav);   // move nav directly into prog-nav-wrap
-        inner.remove();              // kill the constraining wrapper
-      }
-      /* Ensure the nav itself is the scroller */
-      progWrap.style.overflowX = 'auto';
-      progWrap.style.webkitOverflowScrolling = 'touch';
-      if (nav) {
-        nav.style.minWidth     = 'max-content';
-        nav.style.paddingInline = '1.5rem';
-      }
-    }
-
-    /* Departments page: nav.dept-nav-bar > div.section > div.dept-nav-inner
-       The .section wrapper clips overflow. Hoist inner out.   */
-    const deptBar = document.querySelector('.dept-nav-bar');
-    if (deptBar) {
-      const section = deptBar.querySelector('.section');
-      const inner   = deptBar.querySelector('.dept-nav-inner');
-      if (section && inner) {
-        deptBar.appendChild(inner);  // hoist inner out of .section
-        section.remove();            // kill the constraining wrapper
-      }
-      /* The inner scroller already has overflow-x:auto on it   */
-      if (inner) {
-        inner.style.paddingInline = '1.5rem';
-      }
-    }
-  }
-
-
-  /* ═══════════════════════════════════════════════════════════
-     NAVIGATION BEHAVIOUR
+     NAV BEHAVIOUR
+     Dropdowns · mobile menu · scroll effect · keyboard nav
   ═══════════════════════════════════════════════════════════ */
   function initNav() {
     const sel    = (s, ctx = document) => ctx.querySelector(s);
     const selAll = (s, ctx = document) => [...ctx.querySelectorAll(s)];
     const mobile = () => window.innerWidth <= 992;
 
-    /* non-touch flag for CSS :hover dropdowns */
+    // Non-touch flag — enables CSS :hover on dropdowns for desktop
     if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
-      document.documentElement.classList.add('al-no-touch');
+      document.body.classList.add('no-touch');
     }
 
-    const navbar   = sel('#al-navbar');
-    const burger   = sel('#al-burger');
-    const menu     = sel('#al-menu');
-    const closeBtn = sel('#al-close');
-    const overlay  = sel('#al-overlay');
+    const navbar   = sel('#navbar');
+    const toggle   = sel('#navToggle');
+    const menu     = sel('#navMenu');
+    const closeBtn = sel('#navClose');
+    const overlay  = sel('#navOverlay');
 
-    if (!navbar) return;
+    if (!navbar || !toggle) return; // guard if header already exists and has own JS
 
-    let menuOpen = false;
-    let scrolled = false;
+    let menuOpen = false, scrolled = false;
 
     /* ── Mobile menu ── */
     function openMenu() {
       menuOpen = true;
-      menu.classList.add('al-open');
-      overlay && overlay.classList.add('al-vis');
-      burger.setAttribute('aria-expanded', 'true');
-      document.body.classList.add('al-locked');
+      menu.classList.add('open');
+      overlay && overlay.classList.add('visible');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+      document.body.classList.add('menu-open');
       setTimeout(() => { closeBtn && closeBtn.focus(); }, 80);
     }
-
     function closeMenu() {
       if (!menuOpen) return;
       menuOpen = false;
-      menu.classList.remove('al-open');
-      overlay && overlay.classList.remove('al-vis');
-      burger.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('al-locked');
-      burger.focus();
+      menu.classList.remove('open');
+      overlay && overlay.classList.remove('visible');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+      document.body.classList.remove('menu-open');
+      toggle.focus();
     }
 
-    burger   && burger.addEventListener('click', e => { e.stopPropagation(); menuOpen ? closeMenu() : openMenu(); });
-    closeBtn && closeBtn.addEventListener('click', closeMenu);
-    overlay  && overlay.addEventListener('click', closeMenu);
+    toggle   && toggle.addEventListener('click',   e => { e.stopPropagation(); menuOpen ? closeMenu() : openMenu(); });
+    closeBtn && closeBtn.addEventListener('click',  closeMenu);
+    overlay  && overlay.addEventListener('click',   closeMenu);
 
     /* ── Dropdowns ── */
-    function closeAllDrops(except = null) {
-      selAll('.al-ni[data-drop].al-open').forEach(item => {
-        if (item === except) return;
-        item.classList.remove('al-open');
-        const b = sel('.al-nl', item);
-        if (b) b.setAttribute('aria-expanded', 'false');
+    function closeAllDropdowns() {
+      selAll('.nav-item.has-dropdown.open').forEach(item => {
+        item.classList.remove('open');
+        const t = sel('.dropdown-toggle', item);
+        if (t) t.setAttribute('aria-expanded', 'false');
       });
     }
 
-    selAll('.al-ni[data-drop]').forEach(item => {
-      const btn = sel('.al-nl', item);
-      if (!btn) return;
+    selAll('.dropdown-toggle').forEach(btn => {
       btn.addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
-        const isOpen = item.classList.contains('al-open');
-        closeAllDrops(isOpen ? null : item);
-        if (isOpen) {
-          item.classList.remove('al-open');
-          btn.setAttribute('aria-expanded', 'false');
-        } else {
-          item.classList.add('al-open');
-          btn.setAttribute('aria-expanded', 'true');
-        }
+        const item   = btn.closest('.nav-item');
+        const isOpen = item.classList.contains('open');
+        closeAllDropdowns();
+        if (!isOpen) { item.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
       });
     });
 
     document.addEventListener('click', e => {
-      if (!navbar.contains(e.target) && !(menu && menu.contains(e.target))) {
-        closeAllDrops();
+      if (!navbar.contains(e.target)) {
+        closeAllDropdowns();
         if (mobile()) closeMenu();
       }
     });
 
-    /* ── Scroll shadow ── */
+    /* ── Scroll effect ── */
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
-      if (y > 40 && !scrolled)  { navbar.classList.add('al-scrolled');    scrolled = true;  }
-      if (y <= 40 && scrolled)  { navbar.classList.remove('al-scrolled'); scrolled = false; }
+      if (y > 40 && !scrolled)  { navbar.classList.add('scrolled');    scrolled = true;  }
+      if (y <= 40 && scrolled)  { navbar.classList.remove('scrolled'); scrolled = false; }
     }, { passive: true });
 
     /* ── Resize ── */
     let rt;
     window.addEventListener('resize', () => {
       clearTimeout(rt);
-      rt = setTimeout(() => { if (!mobile()) { closeMenu(); closeAllDrops(); } }, 200);
+      rt = setTimeout(() => { if (!mobile()) { closeMenu(); closeAllDropdowns(); } }, 200);
     });
 
     /* ── Keyboard ── */
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { if (menuOpen) closeMenu(); else closeAllDrops(); }
+      if (e.key === 'Escape') { if (menuOpen) { closeMenu(); return; } closeAllDropdowns(); }
     });
 
-    /* Arrow keys inside open dropdown */
-    selAll('.al-drop, .al-mob-drop').forEach(dm => {
-      const items = selAll('.al-di, .al-mob-di', dm);
+    // Arrow key navigation inside open dropdowns
+    selAll('.dropdown-menu').forEach(dm => {
+      const items = selAll('.dropdown-item', dm);
       items.forEach((item, i) => {
         item.addEventListener('keydown', e => {
-          if (e.key === 'ArrowDown') { e.preventDefault(); items[(i+1) % items.length].focus(); }
-          if (e.key === 'ArrowUp')   { e.preventDefault(); items[(i-1+items.length) % items.length].focus(); }
+          if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+          if (e.key === 'ArrowUp')   { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
         });
       });
     });
 
-    /* Focus trap in mobile menu */
+    // Focus trap inside mobile menu
     menu && menu.addEventListener('keydown', e => {
       if (e.key !== 'Tab' || !menuOpen) return;
-      const focusable = selAll('a[href],button:not([disabled])', menu).filter(el => el.offsetParent !== null);
+      const focusable = selAll('a[href], button:not([disabled])', menu)
+        .filter(el => el.offsetParent !== null);
       if (!focusable.length) return;
       const first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey  && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      if (!e.shiftKey && document.activeElement === last)  { e.preventDefault(); first.focus(); }
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
-
-    /* Body offset — push page content below fixed header */
-    document.body.classList.add('al-offset');
   }
 
+  /* ═══════════════════════════════════════════════════════════
+     SCROLL REVEAL  (for pages that use .rv / .reveal classes)
+  ═══════════════════════════════════════════════════════════ */
+  function initReveal() {
+    if (typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal, .reveal-l, .reveal-r, .rv, .rv-l, .rv-r')
+      .forEach(el => io.observe(el));
+  }
 
   /* ═══════════════════════════════════════════════════════════
-     MAIN BOOTSTRAP
+     BOOTSTRAP
   ═══════════════════════════════════════════════════════════ */
-  async function init() {
+  function init() {
     injectCSS();
-
-    if (CONFIG.useInlineComponents) {
-      mountHeader(INLINE_HEADER);
-      mountFooter(INLINE_FOOTER);
-    } else {
-      try {
-        const [hr, fr] = await Promise.all([
-          fetch(CONFIG.headerPath),
-          fetch(CONFIG.footerPath),
-        ]);
-        if (!hr.ok) throw new Error(`Header: ${hr.status}`);
-        if (!fr.ok) throw new Error(`Footer: ${fr.status}`);
-        const [hHTML, fHTML] = await Promise.all([hr.text(), fr.text()]);
-        mountHeader(hHTML);
-        mountFooter(fHTML);
-      } catch (err) {
-        console.warn('[ANSEC Layout] Falling back to inline:', err.message);
-        mountHeader(INLINE_HEADER);
-        mountFooter(INLINE_FOOTER);
-      }
-    }
-
+    mountHeader();
+    mountFooter();
     setActiveNav();
     setYear();
-    fixPageNavBars();
     initNav();
+    initReveal();
   }
 
   if (document.readyState === 'loading') {
