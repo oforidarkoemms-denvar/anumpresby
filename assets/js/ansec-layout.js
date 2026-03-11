@@ -39,6 +39,7 @@
     'ansec-admin-staff':           'our-school',
     'ansec-campus-facilities':     'our-school',
     'ansec-anthem-motto':          'our-school',
+    'ansec-admissions':            'admissions',
     'ansec-programmes':            'academic-life',
     'ansec-departments':           'academic-life',
     'ansec-academic-calendar':     'academic-life',
@@ -261,6 +262,12 @@ body.menu-open{overflow:hidden}
           </ul>
         </li>
 
+          <li class="nav-item" role="none" data-section="admissions">
+          <a href="/pages/ansec-admissions.html" class="nav-link" role="menuitem">
+            <i class="ri-calendar-event-line" aria-hidden="true"></i><span>Admissions</span>
+          </a>
+        </li>
+
         <li class="nav-item has-dropdown" role="none" data-section="academic-life">
           <button class="nav-link dropdown-toggle" aria-expanded="false" aria-haspopup="true" role="menuitem">
             <i class="ri-book-open-line" aria-hidden="true"></i><span>Academic Life</span>
@@ -285,7 +292,7 @@ body.menu-open{overflow:hidden}
             <li><a href="/pages/ansec-boarding.html" class="dropdown-item" role="menuitem"><i class="ri-home-heart-line"></i>Boarding &amp; Pastoral Care</a></li>
           </ul>
         </li>
-
+        
         <li class="nav-item" role="none" data-section="events">
           <a href="/pages/ansec-events.html" class="nav-link" role="menuitem">
             <i class="ri-calendar-event-line" aria-hidden="true"></i><span>Events</span>
