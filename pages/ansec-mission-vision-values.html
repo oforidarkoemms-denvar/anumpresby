@@ -38,17 +38,22 @@
       --shadow-card:  0 2px 12px rgba(0,0,0,0.05), 0 6px 28px rgba(0,0,0,0.05);
       --shadow-lift:  0 8px 32px rgba(0,0,0,0.10);
       --tr:           0.28s cubic-bezier(0.22,1,0.36,1);
+      /* Layout tokens — synced with ansec-layout.css */
+      --al-topbar-h:  56px;
+      --al-navbar-h:  64px;
+      --al-total-h:   120px;
     }
 
     /* ─── RESET ─── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: var(--sans);
       background: var(--bg-page);
       color: var(--text-primary);
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
     /* ─── LAYOUT ─── */
@@ -183,153 +188,193 @@
 
     /* ═══════════════════════════════════════════════════════
        §1 — HERO
+       Header offset driven by ansec-layout.js tokens:
+         --al-topbar-h = 56px  --al-navbar-h = 64px
+         --al-total-h  = 120px
     ═══════════════════════════════════════════════════════ */
     .mv-hero {
       position: relative;
-      min-height: 72vh;
+      width: 100%;
+      min-height: 78vh;
       display: flex;
       align-items: center;
       overflow: hidden;
-      background: var(--bg-darkblue);
-       padding-top:var(--header-total);
-
+      /* background: var(--bg-darkblue); — commented out; hero-img provides bg */
+      padding-top: var(--al-total-h, 120px); /* clear fixed header */
     }
-    .mv-hero-bg {
+
+    /*
+     * ── HERO BACKGROUND IMAGE ──────────────────────────────────────────────
+     * Uncomment background-image and set the real asset path when ready.
+     *
+     * Suggested photo options:
+     *   "Students studying together in the ANSEC library"
+     *   "Sunrise over the ANSEC campus, Eastern Region Ghana"
+     *
+     * Path example: /assets/images/hero/sunrise-over-campus.jpg
+     * ──────────────────────────────────────────────────────────────────────
+     */
+    .mv-hero-img {
       position: absolute; inset: 0; z-index: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+       background-image: url('/assets/images/hero/sunrise-over-campus.jpg'); 
+    }
+
+    /* SVG decorative layer — compass rose motif */
+    .mv-hero-bg {
+      position: absolute; inset: 0; z-index: 1;
     }
     .mv-hero-bg svg { width: 100%; height: 100%; display: block; }
+
     .mv-hero-overlay {
-      position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(
-        135deg,
-        rgba(6,15,30,0.88) 0%,
-        rgba(6,15,30,0.70) 50%,
-        rgba(6,15,30,0.84) 100%
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(to bottom,
+        rgba(4,10,22,0.85) 0%,
+        rgba(4,10,22,0.50) 50%,
+        rgba(4,10,22,0.92) 100%
       );
     }
     .mv-hero-grid {
-      position: absolute; inset: 0; z-index: 2;
-      opacity: 0.032;
+      position: absolute; inset: 0; z-index: 3;
+      opacity: 0.035;
       background-image:
         linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
-      background-size: 68px 68px;
+      background-size: 60px 60px;
     }
-    .mv-hero-content {
-      position: relative; z-index: 3;
-      width: 100%;
-      text-align: center;
-      padding-block: 7rem 6rem;
-    }
-      .hero-breadcrumb{display:flex;align-items:center;justify-content:center;gap:.5rem;
-    font-family:var(--sans);font-size:.72rem;font-weight:500;color:rgba(150,185,225,.5);
-    margin-bottom:1.5rem;letter-spacing:.05em}
-  .hero-breadcrumb a{color:rgba(150,185,225,.55);text-decoration:none;transition:color var(--tr)}
-  .hero-breadcrumb a:hover{color:rgba(0,180,255,.8)}
-  .hero-breadcrumb i{font-size:.7rem;opacity:.5}
 
+    /* ── Hero content ── */
+    .mv-hero-content {
+      position: relative; z-index: 4;
+      width: 100%; max-width: 100%; box-sizing: border-box;
+      text-align: center;
+      padding-block: 3.5rem 5.5rem; /* bottom padding for scroll pip */
+    }
+
+    /* ── Breadcrumb ── */
+    .hero-breadcrumb {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0.45rem;
+      width: 100%; box-sizing: border-box;
+      margin-bottom: 1.6rem;
+      font-family: var(--sans); font-size: 0.71rem; font-weight: 500;
+      color: rgba(140,175,220,0.45); letter-spacing: 0.04em;
+      animation: hUp 0.8s both;
+    }
+    .hero-breadcrumb a { color: rgba(160,195,235,0.5); text-decoration: none; transition: color var(--tr); }
+    .hero-breadcrumb a:hover { color: rgba(0,180,255,0.8); }
+    .hero-breadcrumb i { font-size: 0.65rem; opacity: 0.4; }
+    .hero-breadcrumb .crumb-cur { color: rgba(100,185,255,0.7); }
+
+    /* ── Eyebrow ── */
     .mv-eyebrow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      font-family: var(--sans);
-      font-size: 0.63rem;
-      font-weight: 600;
-      letter-spacing: 0.24em;
-      text-transform: uppercase;
-      color: rgba(0,180,255,0.72);
-      margin-bottom: 1.4rem;
-      animation: hUp 0.9s cubic-bezier(.22,1,.36,1) both;
+      display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+      font-family: var(--sans); font-size: 0.63rem; font-weight: 600;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: rgba(0,180,255,0.75);
+      margin-bottom: 1.2rem;
+      animation: hUp 0.9s 0.08s cubic-bezier(.22,1,.36,1) both;
     }
     .mv-eyebrow::before, .mv-eyebrow::after {
-      content: '';
-      display: block;
-      width: 36px; height: 1.5px;
-      background: rgba(0,180,255,0.45);
-      border-radius: 1px;
+      content: ''; display: block;
+      width: 28px; height: 1.5px;
+      background: rgba(0,180,255,0.5); border-radius: 1px;
     }
+
+    /* ── H1 ── */
     .mv-hero-heading {
       font-family: var(--serif);
-      font-size: clamp(2.4rem, 5vw, 4.2rem);
-      font-weight: 700;
-      color: #ffffff;
+      font-size: clamp(2.2rem, 4.5vw, 4rem);
+      font-weight: 700; color: #fff;
       line-height: 1.1;
-      max-width: 840px;
-      margin-inline: auto;
-      animation: hUp 0.9s 0.1s cubic-bezier(.22,1,.36,1) both;
+      width: 100%; max-width: 840px; margin-inline: auto;
+      animation: hUp 0.9s 0.15s cubic-bezier(.22,1,.36,1) both;
     }
     .mv-hero-heading em { font-style: italic; color: #7dd3fc; }
+
+    /* ── Sub ── */
     .mv-hero-sub {
-      font-family: var(--lora);
-      font-style: italic;
-      font-size: 1.05rem;
-      color: rgba(200,220,240,0.65);
-      max-width: 560px;
-      margin: 1.4rem auto 0;
+      font-family: var(--lora); font-style: italic;
+      font-size: 1.02rem; font-weight: 400;
+      color: rgba(200,220,240,0.68);
+      width: 100%; max-width: 580px; margin: 1.3rem auto 0;
       line-height: 1.78;
       animation: hUp 0.9s 0.22s cubic-bezier(.22,1,.36,1) both;
     }
-    /* Three attribute pills */
+
+    /* ── Pills ── */
     .mv-pills {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.7rem;
-      flex-wrap: wrap;
-      margin-top: 2.6rem;
-      animation: hUp 0.9s 0.36s cubic-bezier(.22,1,.36,1) both;
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0.6rem;
+      width: 100%; box-sizing: border-box;
+      margin-top: 2.5rem;
+      animation: hUp 0.9s 0.3s cubic-bezier(.22,1,.36,1) both;
     }
     .mv-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.4rem 1rem;
-      border-radius: 999px;
-      border: 1px solid rgba(0,113,227,0.35);
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.42rem 1.05rem; border-radius: 999px;
+      border: 1px solid rgba(0,113,227,0.3);
       background: rgba(0,113,227,0.1);
-      font-family: var(--sans);
-      font-size: 0.7rem;
-      font-weight: 500;
+      backdrop-filter: blur(8px);
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 500;
       color: rgba(200,225,255,0.8);
-      letter-spacing: 0.03em;
+      transition: all var(--tr);
     }
-    .mv-pill svg { width: 12px; height: 12px; opacity: 0.72; }
-    /* Scroll hint */
+    .mv-pill:hover { background: rgba(0,113,227,0.22); border-color: rgba(0,180,255,0.5); color: #fff; }
+    .mv-pill svg { width: 13px; height: 13px; opacity: 0.72; flex-shrink: 0; }
+
+    /* ── Stats row ── */
+    .mv-hero-stats {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0;
+      margin-top: 3rem;
+      border-top: 1px solid rgba(0,113,227,0.15);
+      border-bottom: 1px solid rgba(0,113,227,0.15);
+      padding-block: 0.6rem;
+      animation: hUp 0.9s 0.38s cubic-bezier(.22,1,.36,1) both;
+    }
+    .mv-hstat {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.9rem 2.2rem;
+      border-right: 1px solid rgba(0,113,227,0.2);
+    }
+    .mv-hstat:last-child { border-right: none; }
+    .mv-hstat-num {
+      font-family: var(--serif); font-size: 1.75rem; font-weight: 700;
+      color: #fff; line-height: 1;
+    }
+    .mv-hstat-num sup { font-size: 0.55em; color: #7dd3fc; vertical-align: super; }
+    .mv-hstat-lbl {
+      font-family: var(--sans); font-size: 0.61rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(150,185,225,0.6); margin-top: 0.3rem;
+    }
+
+    /* ── Scroll pip — right-aligned, matches design system ── */
     .mv-scroll {
-      position: absolute;
-      bottom: 2rem; left: 50%;
-      transform: translateX(-50%);
-      z-index: 4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      opacity: 0.4;
-      animation: hUp 0.9s 0.5s cubic-bezier(.22,1,.36,1) both;
+      position: absolute; bottom: 1.2rem; right: 2rem;
+      z-index: 6;
+      display: flex; flex-direction: column; align-items: center; gap: 0.38rem;
+      opacity: 0.38;
+      animation: hUp 0.9s 0.55s cubic-bezier(.22,1,.36,1) both;
+      pointer-events: none;
     }
     .mv-scroll span {
-      font-family: var(--sans);
-      font-size: 0.58rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #fff;
+      font-family: var(--sans); font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: #fff;
     }
     .scroll-pip {
       width: 4px; height: 22px;
       border: 1.5px solid rgba(255,255,255,0.4);
-      border-radius: 99px;
-      overflow: hidden;
-      position: relative;
+      border-radius: 99px; overflow: hidden; position: relative;
     }
     .scroll-pip::after {
       content: '';
-      position: absolute;
-      left: 50%; top: 0;
-      width: 2px; height: 7px;
-      background: #fff;
-      transform: translateX(-50%);
-      border-radius: 99px;
+      position: absolute; left: 50%; top: 0;
+      width: 2px; height: 7px; background: #fff;
+      transform: translateX(-50%); border-radius: 99px;
       animation: pip 1.6s ease-in-out infinite;
     }
     @keyframes pip {
@@ -338,12 +383,31 @@
       100% { top: 0;    opacity: 0; }
     }
     @keyframes hUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     .hero-accent-bar {
       height: 3px;
       background: linear-gradient(to right, transparent, var(--accent) 30%, var(--accent) 70%, transparent);
+    }
+
+    /* ── Mobile hero ── */
+    @media (max-width: 640px) {
+      .mv-hero { padding-top: var(--al-total-h, 120px); }
+      .mv-hero-content { padding-block: 1.8rem 4rem; }
+      .mv-hero-heading { font-size: clamp(1.75rem, 6vw, 2.5rem); }
+      .mv-hero-sub { font-size: 0.9rem; }
+      .mv-pills { gap: 0.4rem; }
+      .mv-pill { font-size: 0.67rem; padding: 0.34rem 0.85rem; }
+      .mv-hero-stats { flex-wrap: wrap; }
+      .mv-hstat { padding: 0.7rem 1.2rem; border-right: none; border-bottom: 1px solid rgba(0,113,227,0.1); }
+      .mv-hstat:last-child { border-bottom: none; }
+      .mv-scroll { right: 1rem; }
+    }
+    @media (max-width: 375px) {
+      .mv-hero-heading { font-size: 1.65rem; }
+      .mv-hero-sub { font-size: 0.85rem; }
+      .mv-scroll { display: none; }
     }
 
 
@@ -1066,7 +1130,7 @@
     @media (max-width: 640px) {
       .section-inner { padding-block: 3.5rem; }
       .section-inner-sm { padding-block: 2.8rem; }
-      .mv-hero-content { padding-block: 5rem 4rem; }
+      /* mv-hero-content mobile padding handled in hero CSS block above */
       .mv-card-body { padding: 2.2rem 1.8rem; }
       .obj-grid { grid-template-columns: 1fr; }
       .commitment-actions { flex-direction: column; align-items: flex-start; }
@@ -1080,8 +1144,22 @@
 <!-- ══════════════════════════════════════════════════════════
   §1 — HERO
 ══════════════════════════════════════════════════════════ -->
-<section class="mv-hero" aria-label="Mission, Vision and Core Values">
-  <div class="mv-hero-bg">
+<section class="mv-hero" id="hero-mvv-section" aria-label="Mission, Vision and Core Values">
+
+  <!--
+  ════════════════════════════════════════════════════════════
+  HERO BACKGROUND IMAGE
+  Uncomment background-image in .mv-hero-img CSS and set path.
+  Suggested photos:
+    "Students studying together in the ANSEC library"
+    "Sunrise over the ANSEC campus, Eastern Region Ghana"
+  Path example: /assets/images/hero/sunrise-over-campus.jpg
+  ════════════════════════════════════════════════════════════
+  -->
+  <div class="mv-hero-img" aria-hidden="true"></div>
+
+  <!-- SVG decorative layer — compass-rose institutional geometry -->
+  <!-- <div class="mv-hero-bg" aria-hidden="true">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice">
       <defs>
         <linearGradient id="hbg" x1="0" y1="0" x2="0" y2="1">
@@ -1100,33 +1178,28 @@
       <rect width="1400" height="800" fill="url(#hbg)"/>
       <rect width="1400" height="800" fill="url(#hg1)"/>
       <rect width="1400" height="800" fill="url(#hg2)"/>
-
-      <!-- Institutional compass-rose geometry -->
+      Compass-rose rings 
       <circle cx="700" cy="400" r="340" fill="none" stroke="rgba(0,113,227,0.06)" stroke-width="1.5"/>
       <circle cx="700" cy="400" r="255" fill="none" stroke="rgba(0,113,227,0.055)" stroke-width="1"/>
       <circle cx="700" cy="400" r="170" fill="none" stroke="rgba(0,113,227,0.07)" stroke-width="1"/>
       <circle cx="700" cy="400" r="86"  fill="none" stroke="rgba(0,113,227,0.09)" stroke-width="1.5"/>
       <circle cx="700" cy="400" r="34"  fill="rgba(0,113,227,0.06)"/>
-
-      <!-- Cross + diagonals -->
+       Cross + diagonals
       <line x1="700" y1="40"  x2="700" y2="760" stroke="rgba(0,113,227,0.05)" stroke-width="1"/>
       <line x1="340" y1="400" x2="1060" y2="400" stroke="rgba(0,113,227,0.05)" stroke-width="1"/>
       <line x1="460" y1="160" x2="940" y2="640" stroke="rgba(0,113,227,0.035)" stroke-width="1"/>
       <line x1="940" y1="160" x2="460" y2="640" stroke="rgba(0,113,227,0.035)" stroke-width="1"/>
-
-      <!-- Cardinal diamond nodes -->
-      <polygon points="700,64  708,80  700,96  692,80"   fill="rgba(0,180,255,0.28)"/>
-      <polygon points="700,704 708,720 700,736 692,720"  fill="rgba(0,180,255,0.22)"/>
-      <polygon points="364,400 380,408 396,400 380,392"  fill="rgba(0,180,255,0.22)"/>
+       Diamond no
+      <polygon points="700,64  708,80  700,96  692,80"      fill="rgba(0,180,255,0.28)"/>
+      <polygon points="700,704 708,720 700,736 692,720"     fill="rgba(0,180,255,0.22)"/>
+      <polygon points="364,400 380,408 396,400 380,392"     fill="rgba(0,180,255,0.22)"/>
       <polygon points="1004,400 1020,408 1036,400 1020,392" fill="rgba(0,180,255,0.22)"/>
-
-      <!-- Corner triangle accents -->
-      <polygon points="0,0 200,0 0,130"     fill="rgba(0,113,227,0.04)"/>
+  
+      <polygon points="0,0 200,0 0,130"          fill="rgba(0,113,227,0.04)"/>
       <polygon points="1400,0 1200,0 1400,130"   fill="rgba(0,113,227,0.04)"/>
-      <polygon points="0,800 200,800 0,670"  fill="rgba(0,113,227,0.03)"/>
+      <polygon points="0,800 200,800 0,670"       fill="rgba(0,113,227,0.03)"/>
       <polygon points="1400,800 1200,800 1400,670" fill="rgba(0,113,227,0.03)"/>
-
-      <!-- Scattered stars -->
+   
       <circle cx="180"  cy="120" r="1.4" fill="rgba(0,180,255,0.35)"/>
       <circle cx="340"  cy="80"  r="1.1" fill="rgba(0,180,255,0.28)"/>
       <circle cx="560"  cy="140" r="1.2" fill="rgba(0,180,255,0.25)"/>
@@ -1135,50 +1208,84 @@
       <circle cx="1340" cy="80"  r="1.3" fill="rgba(0,180,255,0.3)"/>
       <circle cx="90"   cy="400" r="1.4" fill="rgba(0,180,255,0.22)"/>
       <circle cx="1310" cy="420" r="1.4" fill="rgba(0,180,255,0.22)"/>
-      <circle cx="250"  cy="680" r="1.2" fill="rgba(0,180,255,0.2)"/>
-      <circle cx="1150" cy="700" r="1.2" fill="rgba(0,180,255,0.2)"/>
       <circle cx="820"  cy="700" r="1.0" fill="rgba(0,180,255,0.18)"/>
-    </svg>
+    </svg> -->
   </div>
+
   <div class="mv-hero-overlay"></div>
   <div class="mv-hero-grid"></div>
 
+  <!-- Scroll pip — bottom-right, matches design system -->
+  <div class="mv-scroll" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="scroll-pip"></div>
+  </div>
+
+  <!-- ── Hero text content ── -->
   <div class="section">
     <div class="mv-hero-content">
-         <div class="hero-content">
-        <div class="hero-breadcrumb" aria-label="Breadcrumb">
-        <a href="../pages/ansec-index.html">Home</a>
+
+      <!-- Breadcrumb -->
+      <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+        <a href="/index.html"><i class="ri-home-4-line"></i> Home</a>
         <i class="ri-arrow-right-s-line"></i>
-        <span aria-current="page">mission, vision & Core Values</span>
-      </div>
+        <a href="/pages/ansec-about.html">About ANSEC</a>
+        <i class="ri-arrow-right-s-line"></i>
+        <span class="crumb-cur">Mission, Vision &amp; Values</span>
+      </nav>
+
+      <!-- Eyebrow -->
       <div class="mv-eyebrow">Anum Presbyterian Senior High School</div>
+
+      <!-- H1 -->
       <h1 class="mv-hero-heading">
-        Our Mission, Vision<br><em>&amp; Core Values</em>
+        Our Mission, Vision <em>&amp; Core Values</em>
       </h1>
+
+      <!-- Sub -->
       <p class="mv-hero-sub">
         The convictions that guide every decision, the principles that shape every student, and the vision that has driven ANSEC for over eight decades of purposeful education.
       </p>
+
+      <!-- Quick-jump pills -->
       <div class="mv-pills">
-        <div class="mv-pill">
+        <a href="#mission-vision" class="mv-pill">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v2.5l1.5 1"/></svg>
           Est. 1937
-        </div>
-        <div class="mv-pill">
+        </a>
+        <a href="#values" class="mv-pill">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6 1l1.3 3L11 4.5l-2.5 2 .8 3.5L6 8.5l-3.3 1.5.8-3.5L1 4.5 4.7 4z"/></svg>
           Service · Sacrifice · Excellence
-        </div>
-        <div class="mv-pill">
+        </a>
+        <a href="#objectives" class="mv-pill">
           <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M6 1.5C3.5 1.5 1.5 3.5 1.5 6S3.5 10.5 6 10.5"/><path d="M6 1.5C7.5 3 8.5 4.4 8.5 6s-1 3-2.5 4.5"/><path d="M1.5 6h9"/></svg>
           Eastern Region, Ghana
+        </a>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mv-hero-stats">
+        <div class="mv-hstat">
+          <div class="mv-hstat-num">128<sup>+</sup></div>
+          <div class="mv-hstat-lbl">Years of Excellence</div>
+        </div>
+        <div class="mv-hstat">
+          <div class="mv-hstat-num">7</div>
+          <div class="mv-hstat-lbl">Core Values</div>
+        </div>
+        <div class="mv-hstat">
+          <div class="mv-hstat-num">6</div>
+          <div class="mv-hstat-lbl">Objectives</div>
+        </div>
+        <div class="mv-hstat">
+          <div class="mv-hstat-num">1</div>
+          <div class="mv-hstat-lbl">Mission</div>
         </div>
       </div>
+
     </div>
   </div>
 
-  <div class="mv-scroll" aria-hidden="true">
-    <div class="scroll-pip"></div>
-    <span>Scroll</span>
-  </div>
 </section>
 <div class="hero-accent-bar"></div>
 
@@ -1749,8 +1856,7 @@
           </p>
 
           <div class="commitment-actions">
-            
-            <a href="../pages/ansec-gallery.html"  class="btn-gradient">
+            <a href="#" class="btn-gradient">
               Explore Our History
               <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8M8 4l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
