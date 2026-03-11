@@ -16,13 +16,14 @@
     --bg-page:#f5f7fa;--bg-white:#fff;--bg-dark:#060f1e;--bg-dkblue:#071428;
     --txt-primary:#0d1b2a;--txt-body:#3a4a5c;--txt-muted:#7a8fa6;--txt-xmuted:#a8b8cc;
     --serif:'Playfair Display',Georgia,serif;--lora:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
+    --al-topbar-h:56px;--al-navbar-h:64px;--al-total-h:120px;
     --r:14px;--rsm:9px;--rxs:6px;
     --sc:0 2px 12px rgba(0,0,0,.05),0 6px 28px rgba(0,0,0,.05);
     --sl:0 10px 40px rgba(0,0,0,.13);
     --tr:.28s cubic-bezier(.22,1,.36,1);--trs:.48s cubic-bezier(.22,1,.36,1);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;overflow-x:hidden}
   body{font-family:var(--sans);background:var(--bg-page);color:var(--txt-primary);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   .wrap{max-width:1400px;padding-inline:1.5rem;margin-inline:auto}
   .rv,.rv-l,.rv-r{opacity:0;transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
@@ -52,19 +53,72 @@
   /* ════════════════════════════
      §1  HERO
   ════════════════════════════ */
-  .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden;background:var(--bg-dkblue); padding-top:var(--header-total)}
+  .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;}
   
-  .hero-grid-layout{position:absolute;inset:0;background-image:linear-gradient(rgba(212,175,55,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.04) 1px,transparent 1px);background-size:72px 72px;pointer-events:none}
-  .h-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(90px)}
-  .ho1{width:55%;height:90%;top:-20%;right:-10%;background:radial-gradient(ellipse,rgba(0,113,227,.16),transparent 70%);animation:opulse 10s ease-in-out infinite}
-  .ho2{width:40%;height:70%;bottom:-20%;left:-8%;background:radial-gradient(ellipse,rgba(212,175,55,.11),transparent 70%);animation:opulse 13s 2s ease-in-out infinite}
-  .ho3{width:28%;height:55%;top:30%;left:35%;background:radial-gradient(ellipse,rgba(139,0,0,.09),transparent 70%);animation:opulse 9s 4s ease-in-out infinite}
-  @keyframes opulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.1)}}
-  .hero-ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,10,22,.9) 0%,rgba(4,10,22,.42) 50%,rgba(4,10,22,.94) 100%);pointer-events:none}
-  .hero-stripe{position:absolute;top:0;right:0;width:48%;height:100%;background:linear-gradient(135deg,transparent 0%,rgba(0,113,227,.04) 50%,rgba(212,175,55,.03) 100%);clip-path:polygon(14% 0,100% 0,100% 100%,0 100%);pointer-events:none}
-  .hero-est{position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font-family:var(--serif);font-size:.7rem;font-weight:700;letter-spacing:.42em;text-transform:uppercase;color:rgba(212,175,55,.18);white-space:nowrap;pointer-events:none}
+  /* ── Hero slideshow ── */
+  .hero-base{position:absolute;inset:0;z-index:0;background:var(--bg-dkblue)}
+  .hero-slides{position:absolute;inset:0;z-index:0}
+  .hslide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s cubic-bezier(.4,0,.2,1)}
+  .hslide.active{opacity:1}
+  .hslide img{width:100%;height:100%;object-fit:cover;object-position:center}
+  /* Ken Burns zoom on active slide */
+  .hslide.active img{animation:kbZoom 7s ease-out both}
+  @keyframes kbZoom{from{transform:scale(1.08)}to{transform:scale(1)}}
+  /* Gradient overlay */
+  .hero-ov{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to bottom,rgba(4,10,22,.88) 0%,rgba(4,10,22,.38) 50%,rgba(4,10,22,.94) 100%);
+    pointer-events:none}
+  /* Gold-grid texture */
+  .hero-grid-layout{position:absolute;inset:0;z-index:2;
+    background-image:linear-gradient(rgba(212,175,55,.032) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(212,175,55,.032) 1px,transparent 1px);
+    background-size:72px 72px;pointer-events:none;opacity:.7}
+  /* Slide indicator dots */
+  .hero-dots{position:absolute;bottom:1.4rem;left:50%;transform:translateX(-50%);
+    z-index:5;display:flex;gap:.55rem;align-items:center}
+  .hdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);
+    border:1px solid rgba(255,255,255,.2);cursor:pointer;
+    transition:background var(--tr),transform var(--tr)}
+  .hdot.active{background:var(--gold);border-color:var(--gold);transform:scale(1.25)}
+  /* Slide nav arrows */
+  .hero-arr{position:absolute;top:50%;z-index:5;transform:translateY(-50%);
+    width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;
+    justify-content:center;cursor:pointer;color:rgba(255,255,255,.7);font-size:1.1rem;
+    transition:all var(--tr);backdrop-filter:blur(4px)}
+  .hero-arr:hover{background:rgba(212,175,55,.22);border-color:rgba(212,175,55,.5);color:#fff}
+  .hero-arr.prev{left:1.5rem}
+  .hero-arr.next{right:1.5rem}
+  @media(max-width:640px){.hero-arr{display:none}}
+  /* Scroll pip */
+  .hero-scroll-pip{position:absolute;bottom:1.2rem;right:2rem;z-index:5;
+    display:flex;flex-direction:column;align-items:center;gap:.38rem;
+    opacity:.32;pointer-events:none}
+  .scroll-pip{width:6px;height:24px;border-radius:3px;background:rgba(255,255,255,.5);
+    animation:scrollPip 2.2s ease-in-out infinite}
+  @keyframes scrollPip{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+  .hero-scroll-pip span{font-family:var(--sans);font-size:.58rem;font-weight:500;
+    letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+  @media(max-width:640px){.hero-scroll-pip{right:1rem}}
+  /* .hero-est vertical text */
+  .hero-est{position:absolute;right:0;top:50%;transform:translateY(-50%) rotate(90deg);
+    transform-origin:center;font-family:var(--serif);font-size:.7rem;font-weight:700;
+    letter-spacing:.42em;text-transform:uppercase;color:rgba(212,175,55,.18);
+    white-space:nowrap;pointer-events:none;z-index:3}
   @media(max-width:880px){.hero-est{display:none}}
-  .hero-innerr{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:4.5rem;align-items:center;padding-block:7rem 6rem}
+  /* Slide caption badge */
+  .hero-caption{position:absolute;bottom:3.5rem;left:1.5rem;z-index:5;
+    display:flex;align-items:center;gap:.55rem;
+    background:rgba(4,10,22,.72);backdrop-filter:blur(10px);
+    border:1px solid rgba(212,175,55,.2);border-radius:999px;
+    padding:.4rem 1rem;font-family:var(--sans);font-size:.64rem;font-weight:500;
+    color:rgba(200,225,255,.65);letter-spacing:.04em;
+    opacity:0;transition:opacity .6s .4s ease}
+  .hero-caption.show{opacity:1}
+  .hero-caption i{color:rgba(212,175,55,.7);font-size:.75rem}
+  @media(max-width:640px){.hero-caption{display:none}}
+  .hero-innerr{position:relative;z-index:4;display:grid;grid-template-columns:1.1fr minmax(0,.9fr);gap:4.5rem;align-items:center;
+    padding-top:calc(var(--al-total-h,120px) + 2.5rem);padding-bottom:5rem}
   @media(max-width:880px){.hero-inner{grid-template-columns:1fr;gap:3rem;padding-block:5.5rem 4.5rem;text-align:center}}
     .hero-breadcrumb{display:flex;align-items:center;justify-content:center;gap:.5rem;
     font-family:var(--sans);font-size:.72rem;font-weight:500;color:rgba(150,185,225,.5);
@@ -72,6 +126,7 @@
   .hero-breadcrumb a{color:rgba(150,185,225,.55);text-decoration:none;transition:color var(--tr)}
   .hero-breadcrumb a:hover{color:rgba(0,180,255,.8)}
   .hero-breadcrumb i{font-size:.7rem;opacity:.5}
+  .hero-breadcrumb .crumb-cur{color:rgba(100,210,255,.7)}
 
   .hero-badge{display:inline-flex;align-items:center;gap:.55rem;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.28);color:var(--gold-h);font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:.38rem 1rem;border-radius:999px;margin-bottom:1.4rem;animation:hUp .9s both}
   .hero-badge i{font-size:.85rem}
@@ -82,7 +137,7 @@
   @media(max-width:880px){.hero-p{max-width:100%}}
   .hero-acts{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;animation:hUp .9s .24s both}
   @media(max-width:880px){.hero-acts{justify-content:center}}
-  .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;animation:hUp .9s .32s both}
+  .hero-stats{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.9rem;animation:hUp .9s .32s both}
   @media(max-width:880px){.hero-stats{max-width:380px;margin-inline:auto}}
   .hstat{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);border-radius:var(--rsm);padding:1.4rem 1.2rem;backdrop-filter:blur(8px)}
   .hstat.gold{background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.25)}
@@ -100,7 +155,7 @@
   #featured{background:var(--bg-white)}
   .feat-wrap{padding-block:6rem}
   .feat-hdr{text-align:center;max-width:640px;margin-inline:auto;margin-bottom:3.5rem}
-  .feat-layout{display:grid;grid-template-columns:400px 1fr;gap:5.5rem;align-items:start}
+  .feat-layout{display:grid;grid-template-columns:400px minmax(0,1fr);gap:5.5rem;align-items:start}
   @media(max-width:1020px){.feat-layout{grid-template-columns:1fr;gap:3.5rem}}
 
   /* portrait */
@@ -127,7 +182,7 @@
   .fc-quote{background:linear-gradient(135deg,var(--bg-dkblue),rgba(0,113,227,.06));border-left:3px solid var(--gold);border-radius:0 var(--rsm) var(--rsm) 0;padding:1.4rem 1.5rem 1.4rem 1.8rem;margin:1.5rem 0 1.8rem;position:relative;overflow:hidden}
   .fc-quote::before{content:'\201C';position:absolute;top:-.4rem;left:.7rem;font-family:var(--serif);font-size:5rem;font-weight:700;color:rgba(212,175,55,.12);line-height:1;pointer-events:none}
   .fc-quote p{font-family:var(--lora);font-size:.93rem;font-style:italic;color:rgba(200,220,245,.75);line-height:1.85;position:relative}
-  .fc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.8rem}
+  .fc-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem;margin-bottom:1.8rem}
   @media(max-width:520px){.fc-metrics{grid-template-columns:1fr 1fr}}
   .metric{background:var(--bg-page);border-radius:var(--rsm);padding:1.1rem 1rem;border:1px solid rgba(0,0,0,.06);text-align:center}
   .metric-n{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--txt-primary)}
@@ -159,9 +214,9 @@
   #stats{background:var(--bg-dkblue);position:relative;overflow:hidden}
   .sg{position:absolute;inset:0;background-image:linear-gradient(rgba(212,175,55,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none}
   .stats-inner{padding-block:4.5rem;position:relative;z-index:1}
-  .sband-row{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid rgba(255,255,255,.07);border-radius:var(--r)}
-  @media(max-width:880px){.sband-row{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:540px){.sband-row{grid-template-columns:repeat(2,1fr)}}
+  .sband-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid rgba(255,255,255,.07);border-radius:var(--r)}
+  @media(max-width:880px){.sband-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:540px){.sband-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .sband{padding:2rem 1.4rem;text-align:center;border-right:1px solid rgba(255,255,255,.07);transition:background var(--tr)}
   .sband:last-child{border-right:none}
   .sband:hover{background:rgba(255,255,255,.03)}
@@ -176,7 +231,7 @@
   #notable{background:var(--bg-page)}
   .not-wrap{padding-block:6rem}
   .not-hdr{text-align:center;max-width:640px;margin-inline:auto;margin-bottom:3.5rem}
-  .ag{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+  .ag{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2rem}
   @media(max-width:1000px){.ag{grid-template-columns:1fr 1fr;gap:1.6rem}}
   @media(max-width:560px){.ag{grid-template-columns:1fr}}
 
@@ -253,7 +308,7 @@
   #voices{background:var(--bg-white)}
   .vc-wrap{padding-block:6rem}
   .vc-hdr{text-align:center;max-width:580px;margin-inline:auto;margin-bottom:4rem}
-  .vg{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+  .vg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem}
   @media(max-width:880px){.vg{grid-template-columns:1fr 1fr}}
   @media(max-width:540px){.vg{grid-template-columns:1fr}}
   .vcard{background:var(--bg-page);border-radius:var(--r);padding:1.8rem;border:1px solid rgba(0,0,0,.06);position:relative;transition:box-shadow var(--tr)}
@@ -274,7 +329,7 @@
   .norb1{position:absolute;top:-25%;right:-10%;width:60%;height:120%;background:radial-gradient(ellipse,rgba(0,113,227,.12),transparent 65%);pointer-events:none;border-radius:50%}
   .norb2{position:absolute;bottom:-30%;left:-10%;width:50%;height:110%;background:radial-gradient(ellipse,rgba(212,175,55,.09),transparent 65%);pointer-events:none;border-radius:50%}
   .net-wrap{padding-block:6.5rem;position:relative;z-index:1}
-  .net-layout{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+  .net-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5rem;align-items:center}
   @media(max-width:840px){.net-layout{grid-template-columns:1fr;gap:3rem;text-align:center}}
   .net-ey{display:inline-flex;align-items:center;gap:.55rem;margin-bottom:1.1rem;font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(0,180,255,.7)}
   .net-ey::before{content:'';width:20px;height:1.5px;background:rgba(0,180,255,.55);border-radius:1px;display:inline-block;flex-shrink:0}
@@ -299,7 +354,7 @@
   .nff input::placeholder{color:rgba(150,185,225,.3)}
   .nff select{color:rgba(150,185,225,.6);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8fa6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
   .nff select option{background:#0f2744;color:#dce8f8}
-  .nf-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .nf-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.8rem}
   @media(max-width:460px){.nf-row{grid-template-columns:1fr}}
   .nf-btn{width:100%;padding:.9rem;border-radius:var(--rsm);background:linear-gradient(to right,#0099ff,#0057d9);color:#fff;font-family:var(--sans);font-size:.9rem;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 18px rgba(0,113,227,.35);transition:opacity var(--tr),transform var(--tr),box-shadow var(--tr);display:flex;align-items:center;justify-content:center;gap:.55rem;margin-top:.4rem;position:relative;overflow:hidden}
   .nf-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);pointer-events:none}
@@ -319,7 +374,7 @@
   #events{background:var(--bg-page)}
   .ev-wrap{padding-block:6rem}
   .ev-hdr{max-width:580px;margin-bottom:3rem}
-  .ev-layout{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+  .ev-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5rem;align-items:start}
   @media(max-width:840px){.ev-layout{grid-template-columns:1fr;gap:3rem}}
   .ef{background:linear-gradient(135deg,#8b0000,#5c0000);border-radius:var(--r);padding:2.5rem;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(139,0,0,.3)}
   .ef-bg{position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,.022) 20px,rgba(255,255,255,.022) 40px);pointer-events:none}
@@ -364,22 +419,92 @@
 <!-- ════════════════════════════════════════
      §1  HERO
 ════════════════════════════════════════ -->
-<section class="hero" id="top">
-  <div class="hero-grid-layout" aria-hidden="true"></div>
-  <div class="h-orb ho1" aria-hidden="true"></div>
-  <div class="h-orb ho2" aria-hidden="true"></div>
-  <div class="h-orb ho3" aria-hidden="true"></div>
-  <div class="hero-stripe" aria-hidden="true"></div>
+<section class="hero" id="top" aria-label="Alumni hero">
+
+  <!-- Dark base -->
+  <div class="hero-base" aria-hidden="true"></div>
+
+  <!-- ── Photo Slideshow ─────────────────────────────────────
+       Slide images — replace src paths with real campus photos.
+       Suggested photos:
+         Slide 1: Graduation / Speech Day — alumni in gowns on campus
+         Slide 2: Homecoming reunion — alumni returning to ANSEC gate
+         Slide 3: Campus aerial / panoramic view of Anum school grounds
+  ─────────────────────────────────────────────────────────── -->
+  <div class="hero-slides" aria-hidden="true" id="heroSlides">
+
+    <div class="hslide active" data-caption="Speech Day &amp; Graduation · ANSEC Campus">
+      <img
+        src="/assets/images/alumni/hero-slide-graduation.jpg"
+        alt="ANSEC students at graduation ceremony"
+        loading="eager" fetchpriority="high"
+      />
+    </div>
+
+    <div class="hslide" data-caption="Annual Homecoming · Alumni Return to Anum">
+      <img
+        src="/assets/images/alumni/hero-slide-homecoming.jpg"
+        alt="ANSEC alumni at annual homecoming reunion"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="hslide" data-caption="ANSEC Campus · Anum, Eastern Region, Ghana">
+      <img
+        src="/assets/images/campus/campus-aerial-view.jpg"
+        alt="ANSEC campus aerial view, Anum"
+        loading="lazy"
+      />
+    </div>
+
+  </div>
+
+  <!-- Overlay + texture -->
   <div class="hero-ov" aria-hidden="true"></div>
+  <div class="hero-grid-layout" aria-hidden="true"></div>
+
+  <!-- Side watermark text -->
   <div class="hero-est" aria-hidden="true">ANSEC &middot; EST. 1937 &middot; ANUM &middot; GHANA</div>
-  <div class="wrap">
+
+  <!-- Slide arrows -->
+  <button class="hero-arr prev" id="heroPrev" aria-label="Previous slide">
+    <i class="ri-arrow-left-s-line"></i>
+  </button>
+  <button class="hero-arr next" id="heroNext" aria-label="Next slide">
+    <i class="ri-arrow-right-s-line"></i>
+  </button>
+
+  <!-- Slide caption -->
+  <div class="hero-caption show" id="heroCaption" aria-live="polite">
+    <i class="ri-camera-line"></i>
+    <span id="heroCaptionText">Speech Day &amp; Graduation · ANSEC Campus</span>
+  </div>
+
+  <!-- Scroll pip -->
+  <div class="hero-scroll-pip" aria-hidden="true">
+    <div class="scroll-pip"></div>
+    <span>Scroll</span>
+  </div>
+
+  <!-- Content grid -->
+  <div class="wrap" style="position:relative;z-index:4;width:100%">
     <div class="hero-innerr">
-         <div class="hero-content">
-        <div class="hero-breadcrumb" aria-label="Breadcrumb">
-        <a href="../pages/ansec-index.html">Home</a>
-        <i class="ri-arrow-right-s-line"></i>
-        <span aria-current="page">Alumni</span>
-      </div>
+
+      <!-- Left: text -->
+      <div class="hero-content">
+
+        <!-- Breadcrumb -->
+        <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+          <a href="/index.html"><i class="ri-home-4-line"></i> Home</a>
+          <i class="ri-arrow-right-s-line"></i>
+          <span class="crumb-cur" aria-current="page">Alumni</span>
+        </nav>
+
+        <!-- Eyebrow badge -->
+        <div class="hero-badge" aria-hidden="true">
+          <i class="ri-medal-2-line"></i> ANSEC Alumni Network
+        </div>
+
         <h1 class="hero-h1">
           Once an ANSEC Student,
           <em>Always an ANSEC</em>
@@ -391,14 +516,25 @@
           <a href="#featured" class="btn-ghost"><i class="ri-arrow-down-line"></i> Meet Our Alumni</a>
         </div>
       </div>
+
+      <!-- Right: stats grid -->
       <div class="hero-stats" aria-label="Alumni statistics">
         <div class="hstat"><div class="hstat-n">128<sup>+</sup></div><div class="hstat-l">Years of Legacy</div></div>
         <div class="hstat gold"><div class="hstat-n">15<sup>k+</sup></div><div class="hstat-l">Alumni Worldwide</div></div>
         <div class="hstat"><div class="hstat-n">6</div><div class="hstat-l">Continents</div></div>
         <div class="hstat"><div class="hstat-n">1937</div><div class="hstat-l">Year Founded</div></div>
       </div>
+
     </div>
   </div>
+
+  <!-- Slide indicator dots -->
+  <div class="hero-dots" role="tablist" aria-label="Slideshow navigation">
+    <button class="hdot active" role="tab" aria-selected="true"  aria-label="Slide 1"></button>
+    <button class="hdot"        role="tab" aria-selected="false" aria-label="Slide 2"></button>
+    <button class="hdot"        role="tab" aria-selected="false" aria-label="Slide 3"></button>
+  </div>
+
 </section>
 <div class="hero-bar"></div>
 
@@ -1192,7 +1328,6 @@
   <span id="toastMsg">Done!</span>
 </div>
 
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 <script>
 (function(){
   // scroll reveal
@@ -1240,6 +1375,65 @@
       wrap.style.display='none';ok.classList.add('show');
     },1600);
   });
+
+  // ── Hero Slideshow ──────────────────────────────────────
+  (function(){
+    const slides   = document.querySelectorAll('.hslide');
+    const dots     = document.querySelectorAll('.hdot');
+    const caption  = document.getElementById('heroCaptionText');
+    const captBox  = document.getElementById('heroCaption');
+    const prevBtn  = document.getElementById('heroPrev');
+    const nextBtn  = document.getElementById('heroNext');
+    let   current  = 0;
+    let   timer;
+
+    function goTo(n){
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      dots[current].setAttribute('aria-selected','false');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      dots[current].setAttribute('aria-selected','true');
+      // Reset Ken Burns on new slide img
+      const img = slides[current].querySelector('img');
+      if(img){ img.style.animation='none'; void img.offsetWidth; img.style.animation=''; }
+      // Update caption
+      const cap = slides[current].dataset.caption || '';
+      if(caption) caption.innerHTML = cap;
+      if(captBox){ captBox.classList.remove('show'); setTimeout(()=>captBox.classList.add('show'),60); }
+      resetTimer();
+    }
+
+    function resetTimer(){ clearInterval(timer); timer = setInterval(()=>goTo(current+1), 6000); }
+
+    prevBtn && prevBtn.addEventListener('click',()=>goTo(current-1));
+    nextBtn && nextBtn.addEventListener('click',()=>goTo(current+1));
+    dots.forEach((d,i)=>d.addEventListener('click',()=>goTo(i)));
+
+    // Pause on hover
+    const heroEl = document.querySelector('.hero');
+    heroEl && heroEl.addEventListener('mouseenter',()=>clearInterval(timer));
+    heroEl && heroEl.addEventListener('mouseleave',()=>resetTimer());
+
+    // Touch swipe
+    let tx=0;
+    heroEl && heroEl.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+    heroEl && heroEl.addEventListener('touchend',e=>{
+      const dx=e.changedTouches[0].clientX-tx;
+      if(Math.abs(dx)>45){ dx<0?goTo(current+1):goTo(current-1); }
+    },{passive:true});
+
+    // Keyboard
+    document.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft') goTo(current-1);
+      if(e.key==='ArrowRight') goTo(current+1);
+    });
+
+    resetTimer();
+  })();
+  // ────────────────────────────────────────────────────────
+
 })();
 </script>
   <div id="ansec-footer"></div>
