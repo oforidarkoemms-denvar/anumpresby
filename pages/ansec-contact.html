@@ -26,12 +26,13 @@
     --container-pad:1.5rem;
     --shadow-light:rgba(10,25,41,.07); --shadow-medium:rgba(10,25,41,.14); --shadow-heavy:rgba(10,25,41,.25);
     --z-topbar:1000; --z-navbar:999; --z-dropdown:998; --z-overlay:997; --z-mobilemenu:1001;
+    --al-topbar-h:56px; --al-navbar-h:64px; --al-total-h:120px;
     --neutral-50:#fafafa; --neutral-100:#f5f5f5; --neutral-200:#e5e5e5; --neutral-300:#d4d4d4;
     --neutral-500:#737373;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{font-family:var(--sans);background:var(--bg-page);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+  html{scroll-behavior:smooth;overflow-x:hidden}
+  body{font-family:var(--sans);background:var(--bg-page);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   body.menu-open{overflow:hidden}
   .wrap{max-width:1400px;padding-inline:var(--container-pad);margin-inline:auto}
 
@@ -54,8 +55,19 @@
      §1  HERO
   ═══════════════════════════════════════════════════════ */
   .hero{
-    position:relative;min-height:52vh;display:flex;align-items:center;
-    overflow:hidden;background:var(--bg-darkblue);
+    position:relative;min-height:100svh;display:flex;align-items:center;
+    overflow:hidden;
+  }
+  /* Real photo background */
+  .hero-img{
+    position:absolute;inset:0;z-index:0;
+    width:100%;height:100%;object-fit:cover;object-position:center;
+    opacity:.45;
+  }
+  /* Dark base behind photo */
+  .hero-base{
+    position:absolute;inset:0;z-index:0;
+    background:var(--bg-darkblue);
   }
   /* animated grid */
   .hero-grid{position:absolute;inset:0;z-index:0;opacity:.035;
@@ -68,7 +80,9 @@
     pointer-events:none;z-index:0}
   .hero-ov{position:absolute;inset:0;z-index:1;
     background:linear-gradient(to bottom,rgba(4,10,22,.88) 0%,rgba(4,10,22,.55) 50%,rgba(4,10,22,.92) 100%)}
-  .hero-inner{position:relative;z-index:2;text-align:center;padding-block:4.5rem 3.5rem}
+  .hero-inner{position:relative;z-index:2;text-align:center;
+    padding-top:calc(var(--al-total-h,120px) + 2.5rem);
+    padding-bottom:3.5rem;}
 
   .hero-breadcrumb{display:flex;align-items:center;justify-content:center;gap:.5rem;
     font-family:var(--sans);font-size:.72rem;font-weight:500;color:rgba(150,185,225,.5);
@@ -76,6 +90,7 @@
   .hero-breadcrumb a{color:rgba(150,185,225,.55);text-decoration:none;transition:color var(--tr)}
   .hero-breadcrumb a:hover{color:rgba(0,180,255,.8)}
   .hero-breadcrumb i{font-size:.7rem;opacity:.5}
+  .hero-breadcrumb .crumb-cur{color:rgba(100,210,255,.7)}
 
   .hero-eyebrow{display:flex;align-items:center;justify-content:center;gap:.55rem;
     font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;
@@ -99,13 +114,26 @@
   .qlink i{font-size:.9rem}
 
   @keyframes hUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+  /* ── Scroll pip ── */
+  .hero-scroll-pip{
+    position:absolute;bottom:1.2rem;right:2rem;z-index:4;
+    display:flex;flex-direction:column;align-items:center;gap:.38rem;
+    opacity:.3;pointer-events:none;
+  }
+  .scroll-pip{width:6px;height:24px;border-radius:3px;background:rgba(255,255,255,.5);
+    animation:scrollPip 2.2s ease-in-out infinite;}
+  @keyframes scrollPip{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+  .hero-scroll-pip span{font-family:var(--sans);font-size:.58rem;font-weight:500;
+    letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+  @media(max-width:640px){.hero-scroll-pip{right:1rem}}
+
   .hero-bar{height:3px;background:linear-gradient(to right,transparent,var(--accent) 30%,var(--accent) 70%,transparent)}
 
   /* ═══════════════════════════════════════════════════════
      §2  QUICK CONTACT STRIP — 4 cards full-bleed
   ═══════════════════════════════════════════════════════ */
   #quick-contact{background:var(--bg-white)}
-  .qc-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid rgba(0,0,0,.06)}
+  .qc-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-bottom:1px solid rgba(0,0,0,.06)}
   @media(max-width:900px){.qc-strip{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:480px){.qc-strip{grid-template-columns:1fr}}
   .qc-card{display:flex;flex-direction:column;align-items:flex-start;padding:2.2rem 2rem;
@@ -328,7 +356,7 @@
   ═══════════════════════════════════════════════════════ */
   #departments{background:var(--bg-page)}
   .dept-inner{padding-block:5.5rem}
-  .dept-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+  .dept-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem;margin-top:3rem}
   @media(max-width:1000px){.dept-grid{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:560px){.dept-grid{grid-template-columns:1fr}}
 
@@ -429,7 +457,7 @@
   .toast i{color:#34d399;font-size:1rem}
 
   .contact-strip{background:var(--navy-900);border-top:1px solid rgba(255,255,255,.06);padding-block:3rem}
-  .cs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+  .cs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2rem}
   @media(max-width:700px){.cs-grid{grid-template-columns:1fr}}
   .cs-col{display:flex;flex-direction:column;gap:.5rem}
   .cs-col-h{display:flex;align-items:center;gap:.5rem;font-family:var(--sans);font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(0,180,255,.6);margin-bottom:.3rem}
@@ -455,16 +483,37 @@
      §1  HERO
 ═══════════════════════════════════════════════════════ -->
 <section class="hero" aria-label="Contact and location hero">
+  <!-- Dark base layer -->
+  <div class="hero-base" aria-hidden="true"></div>
+
+  <!-- Hero photo — School front gate or campus aerial view -->
+  <!-- Option A: Front Gate (recommended) -->
+  <img
+    class="hero-img"
+    src="/assets/images/campus/campus-front-gate.jpg"
+    alt="ANSEC school front gate, Anum"
+    loading="eager"
+    fetchpriority="high"
+    aria-hidden="true"
+  />
+  <!-- Option B: Campus aerial — swap src to use instead:
+       src="/assets/images/campus/campus-aerial-view.jpg"
+  -->
+
   <div class="hero-grid" aria-hidden="true"></div>
   <div class="hero-glow" aria-hidden="true"></div>
   <div class="hero-ov" aria-hidden="true"></div>
-  <div class="wrap">
+
+  <div class="wrap" style="flex:1;display:flex;flex-direction:column;justify-content:center">
     <div class="hero-inner">
-      <div class="hero-breadcrumb" aria-label="Breadcrumb">
-        <a href="../pages/ansec-index.html">Home</a>
+
+      <!-- Breadcrumb -->
+      <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+        <a href="/index.html"><i class="ri-home-4-line"></i> Home</a>
         <i class="ri-arrow-right-s-line"></i>
-        <span aria-current="page">Contact &amp; Location</span>
-      </div>
+        <span class="crumb-cur" aria-current="page">Contact &amp; Location</span>
+      </nav>
+
       <div class="hero-eyebrow">Anum, Eastern Region, Ghana</div>
       <h1 class="hero-h1">Find Us, <em>Reach Us,</em><br/>Connect With Us</h1>
       <p class="hero-sub">Whether you're a prospective parent, current student, returning alumni, or a community partner — we're always happy to hear from you.</p>
@@ -474,7 +523,14 @@
         <a href="#departments" class="qlink" role="listitem"><i class="ri-phone-line"></i> Department Contacts</a>
         <a href="#hours" class="qlink" role="listitem"><i class="ri-time-line"></i> Office Hours</a>
       </div>
+
     </div>
+  </div>
+
+  <!-- Scroll pip — bottom right -->
+  <div class="hero-scroll-pip" aria-hidden="true">
+    <div class="scroll-pip"></div>
+    <span>Scroll</span>
   </div>
 </section>
 <div class="hero-bar"></div>
@@ -494,9 +550,9 @@
     <div class="qc-card">
       <div class="qc-icon red"><i class="ri-mail-line"></i></div>
       <div class="qc-label">Email</div>
-      <div class="qc-value">info@ansec.edu.gh</div>
-      <div class="qc-sub">General enquiries<br/>admissions@ansec.edu.gh for admissions</div>
-      <a href="mailto:info@ansec.edu.gh" class="qc-action">Send Email <i class="ri-arrow-right-line"></i></a>
+      <div class="qc-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4e272028210e2f203d2b2d602b2a3b602926">[email&#160;protected]</a></div>
+      <div class="qc-sub">General enquiries<br/><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b9d8ddd4d0cacad0d6d7caf9d8d7cadcda97dcddcc97ded1">[email&#160;protected]</a> for admissions</div>
+      <a href="/cdn-cgi/l/email-protection#670e0901082706091402044902031249000f" class="qc-action">Send Email <i class="ri-arrow-right-line"></i></a>
     </div>
     <div class="qc-card">
       <div class="qc-icon green"><i class="ri-whatsapp-line"></i></div>
@@ -696,8 +752,8 @@
               <div>
                 <div class="office-detail-label">Email</div>
                 <div class="office-detail-val">
-                  <a href="mailto:info@ansec.edu.gh">info@ansec.edu.gh</a><br/>
-                  <a href="mailto:admissions@ansec.edu.gh">admissions@ansec.edu.gh</a>
+                  <a href="/cdn-cgi/l/email-protection#dcb5b2bab39cbdb2afb9bff2b9b8a9f2bbb4"><span class="__cf_email__" data-cfemail="d7beb9b1b897b6b9a4b2b4f9b2b3a2f9b0bf">[email&#160;protected]</span></a><br/>
+                  <a href="/cdn-cgi/l/email-protection#92f3f6fffbe1e1fbfdfce1d2f3fce1f7f1bcf7f6e7bcf5fa"><span class="__cf_email__" data-cfemail="b3d2d7dedac0c0dadcddc0f3d2ddc0d6d09dd6d7c69dd4db">[email&#160;protected]</span></a>
                 </div>
                 <div class="office-detail-sub">We reply within 1 – 2 working days</div>
               </div>
@@ -744,7 +800,22 @@
                 <button class="chip" data-topic="other">Other</button>
               </div>
 
-              <form id="contactForm" novalidate>
+              <!-- ═══════════════════════════════════════════════════
+                   FORM ACTION — HOW TO RECEIVE MESSAGES
+                   ═══════════════════════════════════════════════════
+                   Option 1 (Recommended): Formspree
+                     1. Go to https://formspree.io and create a free account
+                     2. Create a new form, set recipient to info@ansec.edu.gh
+                     3. Copy your form endpoint (e.g. https://formspree.io/f/xpwzabcd)
+                     4. Replace action="" below with that URL and add method="POST"
+                     5. Messages will arrive directly in the school email inbox
+                   Option 2: EmailJS (no server needed)
+                     - Uses JS SDK to send email directly from browser
+                     - Free for up to 200 emails/month
+                   Option 3: Backend / server
+                     - Point action to your PHP mailer or school server endpoint
+                   ═══════════════════════════════════════════════════ -->
+              <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
                 <div class="field-row">
                   <div class="field" id="field-fname">
                     <label for="fname">First Name <span class="req">*</span></label>
@@ -846,7 +917,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:headmaster@ansec.edu.gh">headmaster@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#761e1317121b17050213043617180513155813120358111e"><span class="__cf_email__" data-cfemail="e0888581848d8193948592a0818e938583ce858495ce8788">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> By appointment · Mon–Fri, 9 am – 3 pm</div>
           </div>
         </div>
@@ -863,7 +934,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX ext. 12</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:admissions@ansec.edu.gh">admissions@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#cfaeaba2a6bcbca6a0a1bc8faea1bcaaace1aaabbae1a8a7"><span class="__cf_email__" data-cfemail="1e7f7a73776d6d7771706d5e7f706d7b7d307b7a6b307976">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> Mon–Fri, 7:30 am – 4:30 pm</div>
           </div>
         </div>
@@ -880,7 +951,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX ext. 14</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:finance@ansec.edu.gh">finance@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#a0c6c9cec1cec3c5e0c1ced3c5c38ec5c4d58ec7c8"><span class="__cf_email__" data-cfemail="9ef8f7f0fff0fdfbdefff0edfbfdb0fbfaebb0f9f6">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> Mon–Fri, 8 am – 3:30 pm</div>
           </div>
         </div>
@@ -897,7 +968,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX ext. 16</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:academics@ansec.edu.gh">academics@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#92f3f1f3f6f7fffbf1e1d2f3fce1f7f1bcf7f6e7bcf5fa"><span class="__cf_email__" data-cfemail="a5c4c6c4c1c0c8ccc6d6e5c4cbd6c0c68bc0c1d08bc2cd">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> Mon–Fri, 7:30 am – 4 pm</div>
           </div>
         </div>
@@ -914,7 +985,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX ext. 22</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:chaplain@ansec.edu.gh">chaplain@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#89eae1e8f9e5e8e0e7c9e8e7faeceaa7ecedfca7eee1"><span class="__cf_email__" data-cfemail="f1929990819d90989fb1909f829492df949584df9699">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> Daily, 7 am – 5 pm (pastoral emergencies 24 h)</div>
           </div>
         </div>
@@ -931,7 +1002,7 @@
           <div class="dept-divider"></div>
           <div class="dept-contacts">
             <div class="dept-contact-row"><i class="ri-phone-line"></i> +233 (0) XXX XXX XXXX ext. 30</div>
-            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="mailto:alumni@ansec.edu.gh">alumni@ansec.edu.gh</a></div>
+            <div class="dept-contact-row"><i class="ri-mail-line"></i> <a href="/cdn-cgi/l/email-protection#70111c051d1e1930111e0315135e1514055e1718"><span class="__cf_email__" data-cfemail="abcac7dec6c5c2ebcac5d8cec885cecfde85ccc3">[email&#160;protected]</span></a></div>
             <div class="dept-contact-row"><i class="ri-time-line"></i> Mon–Fri, 9 am – 3 pm</div>
           </div>
         </div>
@@ -1013,7 +1084,7 @@
               <i class="ri-arrow-down-s-line faq-chevron"></i>
             </button>
             <div class="faq-a" role="region">
-              <p>Admissions to ANSEC are processed through the Ghana Education Service (GES) computerised school placement system (CSSPS). Prospective SHS 1 students are placed based on their BECE results. For transfers and special cases, contact our Admissions Office directly at admissions@ansec.edu.gh or call +233 (0) XXX XXX XXXX ext. 12.</p>
+              <p>Admissions to ANSEC are processed through the Ghana Education Service (GES) computerised school placement system (CSSPS). Prospective SHS 1 students are placed based on their BECE results. For transfers and special cases, contact our Admissions Office directly at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1a0a5aca8b2b2a8aeafb281a0afb2a4a2efa4a5b4efa6a9">[email&#160;protected]</a> or call +233 (0) XXX XXX XXXX ext. 12.</p>
             </div>
           </div>
 
@@ -1043,7 +1114,7 @@
               <i class="ri-arrow-down-s-line faq-chevron"></i>
             </button>
             <div class="faq-a" role="region">
-              <p>Transcript and certificate requests are handled by the Academic Affairs office. Submit a written request in person or via email to academics@ansec.edu.gh, attaching a copy of your ID and school attendance years. Processing takes 5 – 10 working days. There may be a small administrative fee.</p>
+              <p>Transcript and certificate requests are handled by the Academic Affairs office. Submit a written request in person or via email to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="69080a080d0c04000a1a2908071a0c0a470c0d1c470e01">[email&#160;protected]</a>, attaching a copy of your ID and school attendance years. Processing takes 5 – 10 working days. There may be a small administrative fee.</p>
             </div>
           </div>
 
@@ -1053,7 +1124,7 @@
               <i class="ri-arrow-down-s-line faq-chevron"></i>
             </button>
             <div class="faq-a" role="region">
-              <p>We love hearing from our alumni! Email alumni@ansec.edu.gh with your name, year of graduation, and programme. You can also visit the Alumni Portal on our website to update your details, join the directory, and hear about homecoming events. The ANSEC Alumni Association is very active and welcomes all graduates.</p>
+              <p>We love hearing from our alumni! Email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4c2d20392122250c2d223f292f62292839622b24">[email&#160;protected]</a> with your name, year of graduation, and programme. You can also visit the Alumni Portal on our website to update your details, join the directory, and hear about homecoming events. The ANSEC Alumni Association is very active and welcomes all graduates.</p>
             </div>
           </div>
 
@@ -1108,7 +1179,7 @@
   <span id="toastMsg">Copied!</span>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
   'use strict';
   const $ = (s,c=document)=>c.querySelector(s);
@@ -1283,50 +1354,68 @@
     });
   });
 
+  /* ── Form submit handler ── */
   form&&form.addEventListener('submit',e=>{
     e.preventDefault();
-    const fields=$$('#contactForm input[required],#contactForm select[required],#contactForm textarea[required]');
-    let allValid=true;
-    fields.forEach(f=>{if(!validateField(f))allValid=false;});
+    /* Validate all required fields */
+    let allValid = true;
+    $$('#contactForm input[required],#contactForm select[required],#contactForm textarea[required]').forEach(el=>{
+      if(!validateField(el)) allValid = false;
+    });
+    if(!allValid) return;
 
-    if(!allValid){
-      showToast('Please fill in all required fields correctly.','ri-error-warning-line');
-      const firstErr=form.querySelector('.error');
-      if(firstErr)firstErr.focus();
-      return;
-    }
-
-    // Simulate submit
+    /* Show loading state */
     submitBtn.classList.add('loading');
-    submitBtn.disabled=true;
-    setTimeout(()=>{
+    submitBtn.disabled = true;
+
+    /* Submit to Formspree (or school server) */
+    const formData = new FormData(form);
+    fetch(form.action||'#',{
+      method:'POST',
+      body: formData,
+      headers:{'Accept':'application/json'}
+    })
+    .then(res=>{
+      if(res.ok){
+        /* Show success */
+        formWrapper.style.display='none';
+        formSuccess.classList.add('show');
+        showToast("Message sent! We\u2019ll reply within 1\u20132 working days.",'ri-checkbox-circle-line');
+      } else {
+        /* Fallback: show mailto link if server not configured */
+        showToast('Could not send — please email info@ansec.edu.gh directly.','ri-error-warning-line');
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(()=>{
+      showToast('Connection error — please try again or email us directly.','ri-wifi-off-line');
       submitBtn.classList.remove('loading');
-      submitBtn.disabled=false;
-      formWrapper.style.display='none';
-      formSuccess.classList.add('show');
-    },1400);
+      submitBtn.disabled = false;
+    });
   });
 
+  /* ── Reset form ── */
   const resetBtn=$('#resetFormBtn');
   resetBtn&&resetBtn.addEventListener('click',()=>{
     form.reset();
-    $$('.field').forEach(f=>{f.classList.remove('has-error');});
-    $$('.error').forEach(e=>{e.classList.remove('error');});
-    $$('.chip').forEach((c,i)=>{c.classList.toggle('active',i===0);});
-    if(charCount){charCount.textContent='0 / 1000';charCount.className='char-count';}
-    formSuccess.classList.remove('show');
+    $$('.chip').forEach(c=>c.classList.remove('active'));
+    $$('.chip')[0]&&$$('.chip')[0].classList.add('active');
+    if(charCount) charCount.textContent='0 / 1000';
     formWrapper.style.display='';
-    showToast('Form cleared — ready to send another message.','ri-refresh-line');
+    formSuccess.classList.remove('show');
   });
 
   /* ── FAQ accordion ── */
-  $$('.faq-q').forEach(btn=>{
+  $$('.faq-item').forEach(item=>{
+    const btn=item.querySelector('.faq-q');
+    if(!btn)return;
     btn.addEventListener('click',()=>{
-      const item=btn.closest('.faq-item');
       const isOpen=item.classList.contains('open');
-      $$('.faq-item').forEach(it=>{
-        it.classList.remove('open');
-        it.querySelector('.faq-q').setAttribute('aria-expanded','false');
+      $$('.faq-item').forEach(i=>{
+        i.classList.remove('open');
+        const b=i.querySelector('.faq-q');
+        if(b)b.setAttribute('aria-expanded','false');
       });
       if(!isOpen){
         item.classList.add('open');
@@ -1335,8 +1424,17 @@
     });
   });
 
+
 })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════════════ -->
+<div class="toast" id="toast" role="alert" aria-live="polite">
+  <i class="ri-checkbox-circle-line"></i>
+  <span id="toastMsg"></span>
+</div>
 
   <div id="ansec-footer"></div>
 <script src="/assets/js/ansec-layout.js" defer></script>
