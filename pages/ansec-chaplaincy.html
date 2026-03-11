@@ -30,8 +30,13 @@
       --shadow-card: 0 2px 12px rgba(0,0,0,.05),0 6px 28px rgba(0,0,0,.05);
       --shadow-lift: 0 8px 32px rgba(0,0,0,.10);
       --tr: .28s cubic-bezier(.22,1,.36,1);
-      --topbar-height:  56px;
-      --navbar-height:  64px;
+      /* Layout tokens — synced with ansec-layout.css */
+      --al-topbar-h:  56px;
+      --al-navbar-h:  64px;
+      --al-total-h:   120px;
+      /* Faith colours (kept as-is) */
+      --topbar-height: 56px;
+      --navbar-height: 64px;
       /* Faith colours */
       --faith-christian: #b45309;
       --faith-christian-soft: rgba(180,83,9,.08);
@@ -41,8 +46,8 @@
       --gold-soft: rgba(201,151,43,.12);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{font-family:var(--sans);background:var(--bg-page);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{font-family:var(--sans);background:var(--bg-page);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     .section{max-width:1400px;padding-inline:1.5rem;margin-inline:auto}
     .section-inner{padding-block:5.5rem}
     .section-inner-sm{padding-block:4rem}
@@ -74,57 +79,153 @@
 
     /* ════════════════════════════════
        §1  HERO
+       Header offset: --al-total-h = 120px
+       Media layer: PHOTO or VIDEO — one active, one commented.
+       SVG chapel/stained-glass illustration is always the
+       decorative z-index 1 layer above whichever media is used.
     ════════════════════════════════ */
-    .hero{
-      position:relative;
-      min-height:78vh;
-      display:flex;
-      align-items:center;
-      overflow:hidden;
-      background:var(--bg-darkblue);
-    
+
+    /* ── Outer wrapper ── */
+    .hero {
+      position: relative;
+      width: 100%;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      /* background: var(--bg-darkblue); — replaced by media layer */
     }
-    .hero-bg{position:absolute;inset:0;z-index:0}
-    .hero-bg svg{width:100%;height:100%;display:block;object-fit:cover}
-    .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(4,8,18,.92) 0%,rgba(6,15,30,.55) 50%,rgba(4,8,18,.95) 100%)}
-    .hero-grid{position:absolute;inset:0;z-index:2;opacity:.03;background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);background-size:60px 60px}
-    .hero-content{position:relative;z-index:3;width:100%;text-align:center;padding-block:1.5rem 1.5rem}
-      .hero-breadcrumb{display:flex;align-items:center;justify-content:center;gap:.5rem;
-    font-family:var(--sans);font-size:.72rem;font-weight:500;color:rgba(150,185,225,.5);
-    margin-bottom:1.5rem;letter-spacing:.05em}
-  .hero-breadcrumb a{color:rgba(150,185,225,.55);text-decoration:none;transition:color var(--tr)}
-  .hero-breadcrumb a:hover{color:rgba(0,180,255,.8)}
-  .hero-breadcrumb i{font-size:.7rem;opacity:.5}
 
+    /* ── MEDIA LAYER — image OR video ─────────────────────────
+       .hero-media-img → <img>
+       .hero-media-vid → <video autoplay muted loop playsinline>
+       Only ONE should be uncommented in the HTML at a time.
+    ─────────────────────────────────────────────────────────── */
+    .hero-media-img,
+    .hero-media-vid {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: brightness(0.5);
+      background-color: var(--bg-darkblue); /* fallback while loading */
+    }
 
-    .hero-faith-icons{display:flex;align-items:center;justify-content:center;gap:2rem;margin-bottom:2rem;animation:hUp .9s both}
-    .hfi{display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:.7}
-    .hfi-symbol{width:42px;height:42px;display:flex;align-items:center;justify-content:center}
-    .hfi-label{font-family:var(--sans);font-size:.58rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(180,210,255,.5)}
-    .hfi-divider{width:1px;height:40px;background:rgba(0,113,227,.25)}
+    /* ── SVG decorative layer — always visible ── */
+    .hero-bg { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+    .hero-bg svg { width: 100%; height: 100%; display: block; object-fit: cover; }
 
-    .hero-eyebrow{display:flex;align-items:center;justify-content:center;gap:.55rem;font-family:var(--sans);font-size:.63rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(0,180,255,.75);margin-bottom:1.2rem;animation:hUp .9s .08s both}
-    .hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:28px;height:1.5px;background:rgba(0,180,255,.5);border-radius:1px}
-    .hero-h1{font-family:var(--serif);font-size:clamp(2.3rem,4.8vw,4.4rem);font-weight:700;color:#fff;line-height:1.08;max-width:860px;margin-inline:auto;animation:hUp .9s .15s both}
-    .hero-h1 em{font-style:italic;color:#f5c842}
-    .hero-h1 span.amp{color:rgba(255,255,255,.35);font-weight:400}
-    .hero-sub{font-family:var(--lora);font-size:1.05rem;font-style:italic;color:rgba(200,220,240,.65);max-width:620px;margin:1.4rem auto 0;line-height:1.82;animation:hUp .9s .22s both}
+    /* ── Colour gradient overlay ── */
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(to bottom,
+        rgba(4,8,18,.88) 0%,
+        rgba(6,15,30,.48) 50%,
+        rgba(4,8,18,.94) 100%);
+    }
 
-    .hero-verse{display:inline-block;margin-top:2.2rem;padding:1.1rem 2rem;border-left:2px solid rgba(245,200,66,.4);border-right:2px solid rgba(245,200,66,.4);animation:hUp .9s .3s both;position:relative}
-    .hero-verse::before,.hero-verse::after{content:'';position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(245,200,66,.4) 30%,rgba(245,200,66,.4) 70%,transparent)}
-    .hero-verse::before{left:0}.hero-verse::after{right:0}
-    .verse-text{font-family:var(--lora);font-size:.93rem;font-style:italic;color:rgba(245,215,120,.85);line-height:1.75;display:block}
-    .verse-ref{font-family:var(--sans);font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(245,200,66,.5);margin-top:.5rem;display:block}
+    /* ── Grid texture ── */
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 3;
+      opacity: .03;
+      background-image:
+        linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
 
-    .hero-stats{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;margin-top:3rem;border-top:1px solid rgba(0,113,227,.15);border-bottom:1px solid rgba(0,113,227,.15);padding-block:.6rem;animation:hUp .9s .38s both}
-    .hstat{display:flex;flex-direction:column;align-items:center;padding:.9rem 2.2rem;border-right:1px solid rgba(0,113,227,.2)}
-    .hstat:last-child{border-right:none}
-    .hstat-num{font-family:var(--serif);font-size:1.75rem;font-weight:700;color:#fff;line-height:1}
-    .hstat-num sup{font-size:.55em;color:#7dd3fc;vertical-align:super}
-    .hstat-lbl{font-family:var(--sans);font-size:.61rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(150,185,225,.6);margin-top:.3rem}
-    .hero-accent-bar{height:3px;background:linear-gradient(to right,transparent,#c9972b 30%,#0071e3 70%,transparent)}
+    /* ── Hero text content ── */
+    .hero-content {
+      position: relative; z-index: 4;
+      width: 100%; max-width: 100%; box-sizing: border-box;
+      text-align: center;
+      /* top padding = fixed header height so content never hides beneath it */
+      padding-top: calc(var(--al-total-h, 120px) + 2rem);
+      padding-bottom: 6rem;
+    }
 
-    @keyframes hUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+    /* ── Breadcrumb ── */
+    .hero-breadcrumb {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: .45rem;
+      width: 100%; box-sizing: border-box;
+      margin-bottom: 1.5rem;
+      font-family: var(--sans); font-size: .71rem; font-weight: 500;
+      color: rgba(140,175,220,.45); letter-spacing: .04em;
+      animation: hUp .8s both;
+    }
+    .hero-breadcrumb a { color: rgba(160,195,235,.5); text-decoration: none; transition: color var(--tr); }
+    .hero-breadcrumb a:hover { color: rgba(0,180,255,.8); }
+    .hero-breadcrumb i { font-size: .65rem; opacity: .4; }
+    .hero-breadcrumb .crumb-cur { color: rgba(100,185,255,.7); }
+
+    /* ── Interfaith symbols row ── */
+    .hero-faith-icons { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 2rem; animation: hUp .9s both; }
+    .hfi { display: flex; flex-direction: column; align-items: center; gap: .5rem; opacity: .7; }
+    .hfi-symbol { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
+    .hfi-label { font-family: var(--sans); font-size: .58rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(180,210,255,.5); }
+    .hfi-divider { width: 1px; height: 40px; background: rgba(0,113,227,.25); }
+
+    /* ── Eyebrow ── */
+    .hero-eyebrow { display: flex; align-items: center; justify-content: center; gap: .55rem; font-family: var(--sans); font-size: .63rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: rgba(0,180,255,.75); margin-bottom: 1.2rem; animation: hUp .9s .08s both; }
+    .hero-eyebrow::before, .hero-eyebrow::after { content: ''; display: block; width: 28px; height: 1.5px; background: rgba(0,180,255,.5); border-radius: 1px; }
+
+    /* ── H1 ── */
+    .hero-h1 { font-family: var(--serif); font-size: clamp(2.3rem,4.8vw,4.4rem); font-weight: 700; color: #fff; line-height: 1.08; width: 100%; max-width: 860px; margin-inline: auto; box-sizing: border-box; animation: hUp .9s .15s both; }
+    .hero-h1 em { font-style: italic; color: #f5c842; }
+    .hero-h1 span.amp { color: rgba(255,255,255,.35); font-weight: 400; }
+
+    /* ── Sub ── */
+    .hero-sub { font-family: var(--lora); font-size: 1.05rem; font-style: italic; color: rgba(200,220,240,.65); width: 100%; max-width: 620px; margin: 1.4rem auto 0; box-sizing: border-box; line-height: 1.82; animation: hUp .9s .22s both; }
+
+    /* ── Scripture verse block ── */
+    .hero-verse { display: inline-block; margin-top: 2.2rem; padding: 1.1rem 2rem; border-left: 2px solid rgba(245,200,66,.4); border-right: 2px solid rgba(245,200,66,.4); animation: hUp .9s .3s both; position: relative; max-width: 90vw; box-sizing: border-box; }
+    .hero-verse::before, .hero-verse::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: linear-gradient(to bottom,transparent,rgba(245,200,66,.4) 30%,rgba(245,200,66,.4) 70%,transparent); }
+    .hero-verse::before { left: 0; } .hero-verse::after { right: 0; }
+    .verse-text { font-family: var(--lora); font-size: .93rem; font-style: italic; color: rgba(245,215,120,.85); line-height: 1.75; display: block; }
+    .verse-ref { font-family: var(--sans); font-size: .65rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(245,200,66,.5); margin-top: .5rem; display: block; }
+
+    /* ── Stats row ── */
+    .hero-stats { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0; margin-top: 3rem; border-top: 1px solid rgba(0,113,227,.15); border-bottom: 1px solid rgba(0,113,227,.15); padding-block: .6rem; animation: hUp .9s .38s both; }
+    .hstat { display: flex; flex-direction: column; align-items: center; padding: .9rem 2.2rem; border-right: 1px solid rgba(0,113,227,.2); }
+    .hstat:last-child { border-right: none; }
+    .hstat-num { font-family: var(--serif); font-size: 1.75rem; font-weight: 700; color: #fff; line-height: 1; }
+    .hstat-num sup { font-size: .55em; color: #7dd3fc; vertical-align: super; }
+    .hstat-lbl { font-family: var(--sans); font-size: .61rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(150,185,225,.6); margin-top: .3rem; }
+
+    /* ── Accent bar (gold → blue) ── */
+    .hero-accent-bar { height: 3px; background: linear-gradient(to right,transparent,#c9972b 30%,#0071e3 70%,transparent); }
+
+    /* ── Scroll pip — bottom-right ── */
+    .hero-scroll-pip {
+      position: absolute; bottom: 1.2rem; right: 2rem; z-index: 6;
+      display: flex; flex-direction: column; align-items: center; gap: .38rem;
+      opacity: .36; pointer-events: none;
+      animation: hUp .9s .5s both;
+    }
+    .hero-scroll-pip span { font-family: var(--sans); font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: #fff; }
+    .scroll-pip { width: 4px; height: 22px; border: 1.5px solid rgba(255,255,255,.4); border-radius: 99px; position: relative; overflow: hidden; }
+    .scroll-pip::after { content: ''; position: absolute; left: 50%; top: 0; width: 2px; height: 7px; background: #fff; transform: translateX(-50%); border-radius: 99px; animation: pip 1.6s ease-in-out infinite; }
+
+    @keyframes pip  { 0%{top:0;opacity:1} 80%{top:13px;opacity:0} 100%{top:0;opacity:0} }
+    @keyframes hUp  { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:none} }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .hero { min-height: 100svh; }
+      .hero-content { padding-top: calc(var(--al-total-h, 120px) + 2rem); padding-bottom: 5rem; }
+      .hero-h1 { font-size: clamp(1.9rem,7vw,2.8rem); }
+      .hero-sub { font-size: .95rem; }
+      .hstat { padding: .65rem 1rem; }
+      .hero-scroll-pip { right: 1rem; }
+      .hero-verse { padding: .9rem 1.2rem; }
+    }
+    @media (max-width: 375px) {
+      .hero-h1 { font-size: 1.75rem; }
+      .hero-sub { font-size: .88rem; }
+      .hero-scroll-pip { display: none; }
+      .hero-faith-icons { gap: 1.2rem; }
+    }
 
     /* ════════════════════════════════
        §2  CHAPLAINCY MISSION
@@ -330,94 +431,96 @@
   </style>
 </head>
 <body>
-<div id="ansce-head"></div>
-<!-- ══════════════════════════════════
+<div id="ansec-header"></div>
+<!-- ══════════════════════════════════════════════════
      §1  HERO
-══════════════════════════════════ -->
-<section class="hero">
-  <div class="hero-bg">
-    <svg viewBox="0 0 1440 760" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <linearGradient id="hSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#030810"/><stop offset="100%" stop-color="#060f20"/></linearGradient>
-        <radialGradient id="hG1" cx="20%" cy="60%" r="45%"><stop offset="0%" stop-color="#c9972b" stop-opacity=".18"/><stop offset="100%" stop-color="#c9972b" stop-opacity="0"/></radialGradient>
-        <radialGradient id="hG2" cx="80%" cy="45%" r="35%"><stop offset="0%" stop-color="#0071e3" stop-opacity=".14"/><stop offset="100%" stop-color="#0071e3" stop-opacity="0"/></radialGradient>
-        <radialGradient id="hG3" cx="50%" cy="80%" r="30%"><stop offset="0%" stop-color="#065f46" stop-opacity=".14"/><stop offset="100%" stop-color="#065f46" stop-opacity="0"/></radialGradient>
-        <linearGradient id="hLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c9972b" stop-opacity="0"/><stop offset="50%" stop-color="#c9972b" stop-opacity=".35"/><stop offset="100%" stop-color="#c9972b" stop-opacity="0"/></linearGradient>
-      </defs>
-      <rect width="1440" height="760" fill="url(#hSky)"/>
-      <rect width="1440" height="760" fill="url(#hG1)"/>
-      <rect width="1440" height="760" fill="url(#hG2)"/>
-      <rect width="1440" height="760" fill="url(#hG3)"/>
-      <rect y="380" width="1440" height="1.5" fill="url(#hLine)"/>
+     ─────────────────────────────────────────────────
+     MEDIA LAYER — choose ONE option, comment the other.
 
-      <!-- Stained glass window pattern (left) -->
-      <g transform="translate(100,200)" opacity=".08">
-        <rect width="120" height="180" rx="60 60 0 0" fill="none" stroke="#c9972b" stroke-width="1.5"/>
-        <line x1="60" y1="0" x2="60" y2="180" stroke="#c9972b" stroke-width="1"/>
-        <line x1="0" y1="90" x2="120" y2="90" stroke="#c9972b" stroke-width="1"/>
-        <ellipse cx="60" cy="60" rx="30" ry="30" fill="rgba(201,151,43,.2)" stroke="#c9972b" stroke-width="1"/>
-        <!-- Cross inside -->
-        <line x1="60" y1="30" x2="60" y2="90" stroke="#c9972b" stroke-width="1.5"/>
-        <line x1="42" y1="55" x2="78" y2="55" stroke="#c9972b" stroke-width="1.5"/>
-      </g>
+     OPTION A — PHOTO (currently active, src empty):
+       Uncomment src when photo is ready.
+       Suggested shots:
+         • "ANSEC chapel service with students in pews"
+           Path: /assets/images/hero/chapel-service.jpg
+         • "Students praying together at ANSEC assembly"
+           Path: /assets/images/hero/students-praying.jpg
+         • "Worship gathering on ANSEC campus grounds"
+           Path: /assets/images/hero/worship-gathering.jpg
 
-      <!-- Crescent moon + star (right) -->
-      <g transform="translate(1280,180)" opacity=".1">
-        <path d="M 0,-60 A 60,60 0 1 1 42,-42 A 42,42 0 1 0 0,-60 Z" fill="#065f46" stroke="#10b981" stroke-width="1.2"/>
-        <polygon points="70,-55 73,-46 82,-46 75,-40 78,-31 70,-37 62,-31 65,-40 58,-46 67,-46" fill="#10b981" opacity=".6"/>
-      </g>
+     OPTION B — VIDEO (commented out):
+       Uncomment when video file is ready.
+       Suggested clips:
+         • Chapel service opening sequence
+         • Assembly worship / hymn singing
+       Path example: /assets/video/hero/ansec-chapel.mp4
 
-      <!-- Candle flames -->
-      <g transform="translate(400,150)" opacity=".07">
-        <rect x="-5" y="30" width="10" height="50" rx="3" fill="#c9972b"/>
-        <ellipse cx="0" cy="25" rx="8" ry="14" fill="#f5c842"/>
-        <ellipse cx="0" cy="28" rx="5" ry="9" fill="#fff" opacity=".4"/>
-      </g>
-      <g transform="translate(1050,200)" opacity=".07">
-        <rect x="-5" y="30" width="10" height="45" rx="3" fill="#c9972b"/>
-        <ellipse cx="0" cy="25" rx="8" ry="12" fill="#f5c842"/>
-        <ellipse cx="0" cy="27" rx="5" ry="8" fill="#fff" opacity=".4"/>
-      </g>
+     Only ONE block should be un-commented at a time.
+══════════════════════════════════════════════════ -->
+<section class="hero" id="hero-chaplaincy-section" aria-label="Chaplaincy and Worship">
 
-      <!-- Radiating light rays from center -->
-      <g transform="translate(720,380)" opacity=".04" stroke="#f5c842" stroke-width="1">
-        <line x1="0" y1="-280" x2="0" y2="-180"/>
-        <line x1="0" y1="280" x2="0" y2="180"/>
-        <line x1="-280" y1="0" x2="-180" y2="0"/>
-        <line x1="280" y1="0" x2="180" y2="0"/>
-        <line x1="-198" y1="-198" x2="-127" y2="-127"/>
-        <line x1="198" y1="-198" x2="127" y2="-127"/>
-        <line x1="-198" y1="198" x2="-127" y2="127"/>
-        <line x1="198" y1="198" x2="127" y2="127"/>
-      </g>
+  <!-- ════════════════════════════════════════════
+    OPTION A — PHOTO (activate by filling in src)
+    Alt text examples:
+      "Chapel service at ANSEC with students in worship"
+      "Students praying together at ANSEC morning assembly"
+      "Worship gathering on ANSEC campus"
+  ════════════════════════════════════════════ -->
+  <!-- <img
+    class="hero-media-img"
+    src=""
+    alt="Students at chapel service on ANSEC campus"
+    aria-hidden="true"
+    loading="eager"
+  /> -->
 
-      <!-- Stars / particles -->
-      <circle cx="250" cy="80" r="1.5" fill="#fff" opacity=".4"/>
-      <circle cx="550" cy="55" r="1" fill="#fff" opacity=".3"/>
-      <circle cx="780" cy="90" r="1.5" fill="#fff" opacity=".35"/>
-      <circle cx="1020" cy="60" r="1" fill="#fff" opacity=".25"/>
-      <circle cx="1350" cy="100" r="1.5" fill="#fff" opacity=".4"/>
-      <circle cx="380" cy="130" r="1" fill="#fff" opacity=".3"/>
-      <circle cx="870" cy="40" r="1" fill="#fff" opacity=".35"/>
-      <circle cx="1150" cy="150" r="1" fill="#fff" opacity=".3"/>
+  <!-- ════════════════════════════════════════════
+    OPTION B — VIDEO (currently commented out)
+    To activate: remove the comment wrapper below,
+    then COMMENT OUT the <img> block above.
+      autoplay  — starts immediately on load
+      muted     — required for browser autoplay
+      loop      — continuous background loop
+      playsinline — prevents fullscreen on iOS
+  ════════════════════════════════════════════ -->
 
-      <!-- Bottom accent bars: gold | blue | green -->
-      <rect x="0" y="720" width="480" height="3" fill="#c9972b" opacity=".35"/>
-      <rect x="480" y="720" width="480" height="3" fill="#0071e3" opacity=".35"/>
-      <rect x="960" y="720" width="480" height="3" fill="#059669" opacity=".35"/>
-    </svg>
-  </div>
+  <video
+    class="hero-media-vid"
+    src="/assets/video/ansec-chapel.mp4"
+    autoplay
+    muted
+    loop
+    playsinline
+    aria-hidden="true"
+    preload="auto"
+  ></video>
+
+
+  <!-- SVG chapel / stained-glass decorative layer (always shown) -->
+  <div class="hero-bg" aria-hidden="true">
+   
+  <!-- Colour gradient overlay + grid texture -->
   <div class="hero-overlay"></div>
   <div class="hero-grid"></div>
 
+  <!-- Scroll pip — bottom-right -->
+  <div class="hero-scroll-pip" aria-hidden="true">
+    <span>Explore</span>
+    <div class="scroll-pip"></div>
+  </div>
+
+  <!-- ── Text content ── -->
   <div class="section">
     <div class="hero-content">
-         <div class="hero-content">
-        <div class="hero-breadcrumb" aria-label="Breadcrumb">
-        <a href="../pages/ansec-index.html">Home</a>
+
+      <!-- Breadcrumb -->
+      <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+        <a href="/index.html"><i class="ri-home-4-line"></i> Home</a>
         <i class="ri-arrow-right-s-line"></i>
-        <span aria-current="page">Chaplaincy &amp; Worship</span>
-      </div>
+        <a href="/pages/ansec-about.html">About ANSEC</a>
+        <i class="ri-arrow-right-s-line"></i>
+        <span class="crumb-cur">Chaplaincy &amp; Worship</span>
+      </nav>
+
       <!-- Interfaith symbols -->
       <div class="hero-faith-icons">
         <div class="hfi">
@@ -469,9 +572,10 @@
         <div class="hstat"><div class="hstat-num">2</div><div class="hstat-lbl">Faith Communities</div></div>
         <div class="hstat"><div class="hstat-num">7</div><div class="hstat-lbl">Services / Week</div></div>
         <div class="hstat"><div class="hstat-num">87<sup>+</sup></div><div class="hstat-lbl">Years of Worship</div></div>
-      </div>
-    </div>
-  </div>
+      </div><!-- /hero-content -->
+    </div><!-- /section wrapper -->
+  </div><!-- /section -->
+
 </section>
 <div class="hero-accent-bar"></div>
 
@@ -774,7 +878,7 @@
             </div>
             <div class="cd-row">
               <div class="cd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
-              <div><div class="cd-label">Contact</div><div class="cd-value">chaplaincy@ansec.edu.gh · Ext. 204</div></div>
+              <div><div class="cd-label">Contact</div><div class="cd-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0a69626b7a666b636469734a6b64796f69246f6e7f246d62">[email&#160;protected]</a> · Ext. 204</div></div>
             </div>
             <div class="cd-row">
               <div class="cd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
@@ -1309,7 +1413,7 @@
   </div>
 </section>
   <div id="ansec-footer"></div>
-<script src="/assets/js/ansec-layout.js" defer></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/assets/js/ansec-layout.js" defer></script>
 <script>
   // ── Scroll Reveal ──────────────────────────
   const obs = new IntersectionObserver((entries) => {
